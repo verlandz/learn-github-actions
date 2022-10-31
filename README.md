@@ -6,3 +6,6 @@
 
 ## Documentation
 [Google Docs](TBA)
+
+## Note
+This repo will be in private (mainly) and public (sometimes) due billing limitations. 
