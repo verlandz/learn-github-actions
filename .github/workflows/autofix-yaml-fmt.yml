@@ -38,7 +38,7 @@ jobs:
           git fetch origin main
           files=$(git diff --name-status origin/main | grep -E '.yaml$|.yml$' | awk '{print $2}')
           prettier_path=.github/workflows/supports/.prettierrc
-          prettier --find-config-path prettier_path
+          npx prettier --find-config-path prettier_path
           for file in $files
           do
             npx prettier --config prettier_path --write $file
