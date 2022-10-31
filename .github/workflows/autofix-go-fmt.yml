@@ -18,10 +18,10 @@ jobs:
     runs-on: ubuntu-20.04
     if: github.actor != 'verlandz-bot'
     steps:               
-      - name: Install Go17	
+      - name: Install Go14	
         uses: actions/setup-go@v2
         with:
-          go-version: 1.17.x
+          go-version: 1.14.x
 
       - name: Checkout pull-request branch
         uses: actions/checkout@v3
