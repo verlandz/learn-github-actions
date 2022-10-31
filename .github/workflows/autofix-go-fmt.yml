@@ -1,6 +1,6 @@
 ---
 # [Autofix | Go Formatter]
-#   will autofix your GO format using "go fmt"
+#   will autofix your GO format using 'go fmt'
 #   to your changes files.
 name: Autofix | Go Formatter
 
@@ -31,7 +31,7 @@ jobs:
       - name: Execute go fmt
         run: |
           git fetch origin main
-          files = $(git diff --name-status origin/main | grep ".go$" | awk '{print $2}')
+          files=$(git diff --name-status origin/main | grep '.go$' | awk '{print $2}')
           for file in $files
           do
             go fmt $file
@@ -43,4 +43,4 @@ jobs:
           branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
           commit_user_name: 'verlandz-bot'
           commit_user_email: '111285852+verlandz-bot@users.noreply.github.com'
-          commit_message: "[BOT] Autofix | Go Formatter"
+          commit_message: '[BOT] Autofix | Go Formatter'

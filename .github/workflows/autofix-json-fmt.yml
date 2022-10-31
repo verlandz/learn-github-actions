@@ -1,6 +1,6 @@
 ---
 # [Autofix | JSON Formatter]
-#   will autofix your JSON format using "jq"
+#   will autofix your JSON format using 'jq'
 #   to your changes files.
 name: Autofix | JSON Formatter
 
@@ -29,7 +29,7 @@ jobs:
       - name: Execute jq
         run: |
           git fetch origin main
-          files = $(git diff --name-status origin/main | grep \".json$\" | awk '{print $2}')
+          files=$(git diff --name-status origin/main | grep '.json$' | awk '{print $2}')
           for file in $files
           do
             jq -j . $file
@@ -41,4 +41,4 @@ jobs:
           branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
           commit_user_name: 'verlandz-bot'
           commit_user_email: '111285852+verlandz-bot@users.noreply.github.com'
-          commit_message: "[BOT] Autofix | JSON Formatter"
+          commit_message: '[BOT] Autofix | JSON Formatter'

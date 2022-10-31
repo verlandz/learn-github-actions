@@ -1,6 +1,6 @@
 ---
 # [Autofix | YAML/YML Formatter]
-#   will autofix your YAML/YML format using "yamlfmt"
+#   will autofix your YAML/YML format using 'prettier'
 #   to your changes files.
 name: Autofix | YAML/YML Formatter
 
@@ -20,8 +20,13 @@ jobs:
     runs-on: ubuntu-20.04
     if: github.actor != 'verlandz-bot'
     steps:
-      - name: Download yamlfmt
-        run: go get github.com/google/yamlfmt/cmd/yamlfmt@v0.5.0
+      - name: Install Node14
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+
+      - name: Install npm
+        run: npm install --save-dev --save-exact prettier
 
       - name: Checkout pull-request branch
         uses: actions/checkout@v3
@@ -31,11 +36,13 @@ jobs:
       - name: Execute yamlfmt
         run: |
           git fetch origin main
-          files = $(git diff --name-status origin/main | grep -E ".yaml$|.yml$" | awk '{print $2}')
+          files=$(git diff --name-status origin/main | grep -E '.yaml$|.yml$' | awk '{print $2}')
+          prettier_path=.github/workflows/supports/.prettierrc
+          npx prettier --find-config-path $prettier_path
           for file in $files
           do
-            yamlfmt $x
-          done
+            npx prettier --config $prettier_path --write $file
+          done 
 
       - name: Commit and push
         uses: stefanzweifel/git-auto-commit-action@v4
@@ -43,4 +50,4 @@ jobs:
           branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
           commit_user_name: 'verlandz-bot'
           commit_user_email: '111285852+verlandz-bot@users.noreply.github.com'
-          commit_message: "[BOT] Autofix | YAML/YML Formatter"
+          commit_message: '[BOT] Autofix | YAML/YML Formatter'

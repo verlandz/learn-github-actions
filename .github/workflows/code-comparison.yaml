@@ -1,6 +1,6 @@
 ---
 # [Code Comparison]
-#   will compare the code between "main" and "pull-request" branch
+#   will compare the code between 'main' and 'pull-request' branch
 #   which contains 
 #     - code coverage
 #     - file changes
@@ -47,11 +47,11 @@ jobs:
         if: always()
         run: |
           covMsg=$(cat coverage-message.out)
-          covMsg="${covMsg//'%'/'%25'}"
-          covMsg="${covMsg//$'\n'/'%0A'}"
-          covMsg="${covMsg//$'\r'/'%0D'}"          
-          echo "::set-output name=message::$covMsg"
-          echo "::set-output name=coverage::$(cat coverage-percentage.out)"
+          covMsg='${covMsg//'%'/'%25'}'
+          covMsg='${covMsg//$'\n'/'%0A'}'
+          covMsg='${covMsg//$'\r'/'%0D'}'          
+          echo '::set-output name=message::$covMsg'
+          echo '::set-output name=coverage::$(cat coverage-percentage.out)'
 
       - name: Report failure
         if: failure()
@@ -93,11 +93,11 @@ jobs:
         if: always()
         run: |
           covMsg=$(cat coverage-message.out)
-          covMsg="${covMsg//'%'/'%25'}"
-          covMsg="${covMsg//$'\n'/'%0A'}"
-          covMsg="${covMsg//$'\r'/'%0D'}"          
-          echo "::set-output name=message::$covMsg"
-          echo "::set-output name=coverage::$(cat coverage-percentage.out)"
+          covMsg='${covMsg//'%'/'%25'}'
+          covMsg='${covMsg//$'\n'/'%0A'}'
+          covMsg='${covMsg//$'\r'/'%0D'}'          
+          echo '::set-output name=message::$covMsg'
+          echo '::set-output name=coverage::$(cat coverage-percentage.out)'
 
       - name: Report failure
         if: failure()
@@ -130,10 +130,10 @@ jobs:
         run: |
           git fetch origin main
           diffFiles=$(git diff --name-status origin/main)
-          diffFiles="${diffFiles//'%'/'%25'}"
-          diffFiles="${diffFiles//$'\n'/'%0A'}"
-          diffFiles="${diffFiles//$'\r'/'%0D'}"
-          echo "::set-output name=diff::$diffFiles"
+          diffFiles='${diffFiles//'%'/'%25'}'
+          diffFiles='${diffFiles//$'\n'/'%0A'}'
+          diffFiles='${diffFiles//$'\r'/'%0D'}'
+          echo '::set-output name=diff::$diffFiles'
           
       - name: Report failure
         if: failure()
@@ -141,7 +141,7 @@ jobs:
         with:
           token: ${{ secrets.BOT_PAT }}
           issue-number: ${{ github.event.pull_request.number }}
-          body: "**[Failed]** Diff file changes failed :x:"
+          body: '**[Failed]** Diff file changes failed :x:'
 
   comparison:
     runs-on: ubuntu-20.04
