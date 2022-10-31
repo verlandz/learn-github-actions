@@ -1,6 +1,6 @@
 ---
 # [Autofix | YAML/YML Formatter]
-#   will autofix your YAML/YML format using "yamlfmt"
+#   will autofix your YAML/YML format using 'yamlfmt'
 #   to your changes files.
 name: Autofix | YAML/YML Formatter
 
@@ -20,6 +20,12 @@ jobs:
     runs-on: ubuntu-20.04
     if: github.actor != 'verlandz-bot'
     steps:
+      # needed to support yamlfmt must be >= 1.16.x
+      - name: Install Go17
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.17.x
+
       - name: Download yamlfmt
         run: go get github.com/google/yamlfmt/cmd/yamlfmt@v0.5.0
 
@@ -31,11 +37,11 @@ jobs:
       - name: Execute yamlfmt
         run: |
           git fetch origin main
-          files = $(git diff --name-status origin/main | grep -E ".yaml$|.yml$" | awk '{print $2}')
+          files=$(git diff --name-status origin/main | grep -E '.yaml$|.yml$' | awk '{print $2}')
           for file in $files
           do
-            yamlfmt $x
-          done
+            yamlfmt $file -conf=.github/.yamlfmt
+          done 
 
       - name: Commit and push
         uses: stefanzweifel/git-auto-commit-action@v4
@@ -43,4 +49,4 @@ jobs:
           branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
           commit_user_name: 'verlandz-bot'
           commit_user_email: '111285852+verlandz-bot@users.noreply.github.com'
-          commit_message: "[BOT] Autofix | YAML/YML Formatter"
+          commit_message: '[BOT] Autofix | YAML/YML Formatter'

@@ -1,6 +1,6 @@
 ---
 # [Autofix | INI Formatter]
-#   will autofix your INI format using "prettier-plugin-ini" package
+#   will autofix your INI format using 'prettier-plugin-ini' package
 #   to your changes files.
 name: Autofix | INI Formatter
 
@@ -35,7 +35,7 @@ jobs:
       - name: Execute Prettier
         run: |
           git fetch origin main
-          files = $(git diff --name-status origin/main | grep ".ini$" | awk '{print $2}')
+          files=$(git diff --name-status origin/main | grep '.ini$' | awk '{print $2}')
           for file in $files
           do
             ../node_modules/.bin/prettier --write $file
@@ -47,4 +47,4 @@ jobs:
           branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
           commit_user_name: 'verlandz-bot'
           commit_user_email: '111285852+verlandz-bot@users.noreply.github.com'
-          commit_message: "[BOT] Autofix | INI Formatter"
+          commit_message: '[BOT] Autofix | INI Formatter'
