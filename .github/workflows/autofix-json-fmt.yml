@@ -1,0 +1,44 @@
+---
+# [Autofix | JSON Formatter]
+#   will autofix your JSON format using "jq"
+#   to your changes files.
+name: Autofix | JSON Formatter
+
+on:
+  pull_request:
+    branches: main
+    paths: '**.json'
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}-${{ github.actor }}
+  cancel-in-progress: true
+
+jobs:
+  formatter:
+    runs-on: ubuntu-20.04
+    if: github.actor != 'verlandz-bot'
+    steps:
+      - name: Install jq	
+        run: sudo apt-get install jq
+
+      - name: Checkout pull-request branch
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.BOT_PAT }}
+
+      - name: Execute jq
+        run: |
+          git fetch origin main
+          files = $(git diff --name-status origin/main | grep \".json$\" | awk '{print $2}')
+          for file in $files
+          do
+            jq -j . $file
+          done
+
+      - name: Commit and push
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
+          commit_user_name: 'verlandz-bot'
+          commit_user_email: '111285852+verlandz-bot@users.noreply.github.com'
+          commit_message: "[BOT] Autofix | JSON Formatter"

@@ -8,4 +8,16 @@
 [Google Docs](TBA)
 
 ## Note
-This repo will be in private (mainly) and public (sometimes) due billing limitations. 
+- This repo will be in private (mainly) and public (sometimes) due billing limitations. 
+- If the bot (verlandz-bot) need to work under SSO / private organization then you need to:
+    - Invite the bot into organization
+    - Authorize the PAT with organization
+    - Add this step in the beginning of the steps for needed job(s).
+    This is HTTP style. You can also use SSH style (need PoC).
+        ```
+        - name: Configure private git
+          env:
+            BOT_NAME: verlandz-bot
+            BOT_PAT: ${{ secrets.BOT_PAT }}
+          run: git config --global url."https://$BOT_NAME:$BOT_PAT@github.com".insteadOf "https://github.com"
+        ```
