@@ -20,14 +20,13 @@ jobs:
     runs-on: ubuntu-20.04
     if: github.actor != 'verlandz-bot'
     steps:
-      # needed to support yamlfmt must be >= 1.16.x
-      - name: Install Go16
-        uses: actions/setup-go@v2
+      - name: Install Node14
+        uses: actions/setup-node@v3
         with:
-          go-version: 1.16.x
+          node-version: '14'
 
-      - name: Download yamlfmt
-        run: go get github.com/google/yamlfmt/cmd/yamlfmt@v0.5.0
+      - name: Install npm
+        run: npm install --save-dev --save-exact prettier
 
       - name: Checkout pull-request branch
         uses: actions/checkout@v3
@@ -40,9 +39,7 @@ jobs:
           files=$(git diff --name-status origin/main | grep -E '.yaml$|.yml$' | awk '{print $2}')
           for file in $files
           do
-            echo "$PWD"
-            echo "file=$file"
-            yamlfmt $file -conf=.github/.yamlfmt
+            npx prettier --write $file
           done 
 
       - name: Commit and push
