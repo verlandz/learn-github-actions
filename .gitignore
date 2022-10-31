@@ -1,0 +1,6 @@
+# Bin
+bin/*
+!bin/.gitkeep
+
+# Output
+*.out
