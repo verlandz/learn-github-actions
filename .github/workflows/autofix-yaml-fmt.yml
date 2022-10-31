@@ -40,7 +40,7 @@ jobs:
           files=$(git diff --name-status origin/main | grep -E '.yaml$|.yml$' | awk '{print $2}')
           for file in $files
           do
-            echo "pwd=$PWD"
+            echo "$PWD"
             echo "file=$file"
             yamlfmt $file -conf=.github/.yamlfmt
           done 
