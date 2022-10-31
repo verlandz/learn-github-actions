@@ -37,9 +37,11 @@ jobs:
         run: |
           git fetch origin main
           files=$(git diff --name-status origin/main | grep -E '.yaml$|.yml$' | awk '{print $2}')
+          prettier_path=.github/workflows/supports/.prettierrc
+          prettier --find-config-path prettier_path
           for file in $files
           do
-            npx prettier --write $file
+            npx prettier --config prettier_path --write $file
           done 
 
       - name: Commit and push
