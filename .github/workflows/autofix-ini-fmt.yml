@@ -1,0 +1,49 @@
+---
+# [Autofix | INI Formatter]
+#   will autofix your INI format using 'prettier-plugin-ini' package
+#   to your changes files.
+name: Autofix | INI Formatter
+
+on:
+  pull_request:
+    branches: main
+    paths: '**.ini'
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}-${{ github.actor }}
+  cancel-in-progress: true
+
+jobs:
+  formatter:
+    runs-on: ubuntu-20.04
+    if: github.actor != 'verlandz-bot'
+    steps:
+      - name: Install Node14
+        uses: actions/setup-node@v3
+        with:
+          node-version: '14'
+
+      - name: Install prettier-plugin-ini
+        run: npm install --prefix ../ prettier prettier-plugin-ini
+
+      - name: Checkout pull-request branch
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.BOT_PAT }}
+
+      - name: Execute Prettier
+        run: |
+          git fetch origin main
+          files=$(git diff --name-status origin/main | grep '.ini$' | awk '{print $2}')
+          for file in $files
+          do
+            ../node_modules/.bin/prettier --write $file
+          done
+
+      - name: Commit and push
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
+          commit_user_name: 'verlandz-bot'
+          commit_user_email: '111285852+verlandz-bot@users.noreply.github.com'
+          commit_message: '[BOT] Autofix | INI Formatter'

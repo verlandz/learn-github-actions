@@ -1,0 +1,46 @@
+---
+# [Autofix | Go Formatter]
+#   will autofix your GO format using 'go fmt'
+#   to your changes files.
+name: Autofix | Go Formatter
+
+on:
+  pull_request:
+    branches: main
+    paths: '**.go'
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}-${{ github.actor }}
+  cancel-in-progress: true
+
+jobs:
+  formatter:
+    runs-on: ubuntu-20.04
+    if: github.actor != 'verlandz-bot'
+    steps:
+      - name: Install Go14
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.14.x
+
+      - name: Checkout pull-request branch
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.BOT_PAT }}
+
+      - name: Execute go fmt
+        run: |
+          git fetch origin main
+          files=$(git diff --name-status origin/main | grep '.go$' | awk '{print $2}')
+          for file in $files
+          do
+            go fmt $file
+          done
+
+      - name: Commit and push
+        uses: stefanzweifel/git-auto-commit-action@v4
+        with:
+          branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
+          commit_user_name: 'verlandz-bot'
+          commit_user_email: '111285852+verlandz-bot@users.noreply.github.com'
+          commit_message: '[BOT] Autofix | Go Formatter'
