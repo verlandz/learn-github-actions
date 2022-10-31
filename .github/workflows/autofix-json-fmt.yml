@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-20.04
     if: github.actor != 'verlandz-bot'
     steps:
-      - name: Install jq	
+      - name: Install jq
         run: sudo apt-get install jq
 
       - name: Checkout pull-request branch

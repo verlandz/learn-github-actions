@@ -1,7 +1,7 @@
 ---
 # [Code Comparison]
 #   will compare the code between 'main' and 'pull-request' branch
-#   which contains 
+#   which contains
 #     - code coverage
 #     - file changes
 name: Code Comparison
@@ -27,7 +27,7 @@ jobs:
     outputs:
       message: ${{ steps.coverage-output.outputs.message }}
       coverage: ${{ steps.coverage-output.outputs.coverage }}
-    steps:        
+    steps:
       - name: Install Go14
         uses: actions/setup-go@v2
         with:
@@ -41,7 +41,7 @@ jobs:
 
       - name: Test main branch
         run: make test
-      
+
       - name: Create coverage output
         id: coverage-output
         if: always()
@@ -113,13 +113,13 @@ jobs:
               ${{ steps.coverage-output.outputs.message }}
               
             </details>
- 
+
   diff-file-changes:
     runs-on: ubuntu-20.04
     needs: [init]
     outputs:
       diff: ${{ steps.get-file-changes.outputs.diff }}
-    steps:    
+    steps:
       - name: Checkout pull-request branch
         uses: actions/checkout@v3
         with:
@@ -134,7 +134,7 @@ jobs:
           diffFiles='${diffFiles//$'\n'/'%0A'}'
           diffFiles='${diffFiles//$'\r'/'%0D'}'
           echo '::set-output name=diff::$diffFiles'
-          
+
       - name: Report failure
         if: failure()
         uses: peter-evans/create-or-update-comment@v2
@@ -155,15 +155,15 @@ jobs:
         uses: actions/github-script@v6
         with:
           github-token: ${{ secrets.BOT_PAT }}
-          script: |          
+          script: |
             let covMainBranch = parseFloat(${{ env.COV_MAIN_BRANCH }});
             covMainBranch = covMainBranch ? covMainBranch : 0;
 
             let covPRBranch = parseFloat(${{ env.COV_PR_BRANCH }});
             covPRBranch = covPRBranch ? covPRBranch : 0;
-            
+
             let covDiff = Math.abs(covMainBranch-covPRBranch);
-            
+
             let covProgressIcon = '';
             if (covPRBranch > covMainBranch) {
               covProgressIcon = ':arrow_double_up:';
@@ -172,18 +172,18 @@ jobs:
             } else {
               covProgressIcon = ':left_right_arrow:';
             }
-            
+
             let fixedDigits = 2;
             covMainBranch = covMainBranch.toFixed(fixedDigits);
             covPRBranch = covPRBranch.toFixed(fixedDigits);
             covDiff = covDiff.toFixed(fixedDigits);
-            
+
             // code coverage
             let body = `**[Code Coverage]**`;
             body += ` Main: ${covMainBranch}%`;
             body += ` | PR: ${covPRBranch}%`;
             body += ` | Diff: ${covDiff}% ${covProgressIcon}`;
-            
+
             // file changes
             body += `
               <details>
@@ -195,7 +195,7 @@ jobs:
 
               </details>
             `
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
