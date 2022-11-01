@@ -65,18 +65,18 @@ xmas-fifth-day:
     count: 1
     location: "a pear tree"
     turtle    -doves: two
-    items: [ 
-    
-            1,
-       2,
-  3,
-      4,
-          5 ]
+    items: [  
+     1,
+          2,
+                    3,
+                        4,
+                        			5 ]
     names: [ 
-    "one", 
+     "one", 
       "two", 
-        "three", 
-          "four" ]
+     	 "three", 
+      "four" ]
+
 
 
 
