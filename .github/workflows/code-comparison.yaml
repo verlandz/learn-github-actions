@@ -16,13 +16,13 @@ concurrency:
 
 jobs:
   init:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     if: github.actor != 'verlandz-bot'
     steps:
       - run: ''
 
   test-coverage-main-branch:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: [init]
     outputs:
       message: ${{ steps.coverage-output.outputs.message }}
@@ -69,7 +69,7 @@ jobs:
             </details>
 
   test-coverage-pull-request-branch:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: [init]
     outputs:
       message: ${{ steps.coverage-output.outputs.message }}
@@ -115,7 +115,7 @@ jobs:
             </details>
 
   diff-file-changes:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: [init]
     outputs:
       diff: ${{ steps.get-file-changes.outputs.diff }}
@@ -144,7 +144,7 @@ jobs:
           body: '**[Failed]** Diff file changes failed :x:'
 
   comparison:
-    runs-on: ubuntu-20.04
+    runs-on: ubuntu-latest
     needs: [test-coverage-main-branch, test-coverage-pull-request-branch, diff-file-changes]
     env:
       COV_MAIN_BRANCH: ${{ needs.test-coverage-main-branch.outputs.coverage }}
