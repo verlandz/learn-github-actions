@@ -82,7 +82,6 @@ xmas-fifth-day:
 
 ```
 
-
 (non-broken, no need format) valid.yml
 ```
 --- 

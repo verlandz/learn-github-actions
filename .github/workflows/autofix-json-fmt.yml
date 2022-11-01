@@ -48,7 +48,7 @@ jobs:
               errMsg+="<li><b>$file</b></li>"
               errMsg+="<pre><code>"
               
-              while read line;  
+              while read line;
               do
                 errMsg+="<div>$line</div>"
               done < res.out

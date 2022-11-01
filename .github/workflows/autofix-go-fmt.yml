@@ -1,6 +1,6 @@
 ---
 # [Autofix | Go Formatter]
-#   will autofix your GO format using 'go fmt'
+#   will autofix your GO format using "go fmt"
 #   to your changes files.
 name: Autofix | Go Formatter
 
@@ -18,10 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor != 'verlandz-bot'
     steps:
-      - name: Install Go14
+      - name: Install Go18
         uses: actions/setup-go@v2
         with:
-          go-version: 1.14.x
+          go-version: 1.18.x
 
       - name: Checkout pull-request branch
         uses: actions/checkout@v3
@@ -31,11 +31,49 @@ jobs:
       - name: Execute go fmt
         run: |
           git fetch origin main
-          files=$(git diff --name-status origin/main | grep '.go$' | awk '{print $2}')
+          errMsg=""
+
+          files=$(git diff --name-status origin/main | grep '.go$' | awk '$1 != "D" {print $2}')
           for file in $files
           do
-            go fmt $file
+            echo "Formatting $file"
+            if res=$(go fmt $file 2>&1)
+            then
+              echo "OK"
+            else
+              echo -n "::error::"
+              echo "$res" | tee res.out
+
+              errMsg+="<li><b>$file</b></li>"
+              errMsg+="<pre><code>"
+
+              while read line;
+              do
+                errMsg+="<div>$line</div>"
+              done < res.out
+
+              errMsg+="</pre></code>"
+            fi
           done
+
+          echo "message=$errMsg" >> $GITHUB_OUTPUT
+          if [ "$errMsg" != "" ]
+          then
+            exit 1
+          fi
+
+      - name: Report failure
+        if: failure()
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            **[Failed]** GO Formatter failed :x:
+            <details>
+              <summary>Error Messages</summary>
+              ${{ steps.execute.outputs.message }}
+            </details>
 
       - name: Commit and push
         uses: stefanzweifel/git-auto-commit-action@v4
