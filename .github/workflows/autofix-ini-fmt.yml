@@ -1,6 +1,6 @@
 ---
 # [Autofix | INI Formatter]
-#   will autofix your INI format using 'prettier-plugin-ini' package
+#   will autofix your INI format using "prettier-plugin-ini" package
 #   to your changes files.
 name: Autofix | INI Formatter
 
@@ -18,10 +18,10 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor != 'verlandz-bot'
     steps:
-      - name: Install Node14
+      - name: Install Node18
         uses: actions/setup-node@v3
         with:
-          node-version: '14'
+          node-version: '18'
 
       - name: Install prettier-plugin-ini
         run: npm install --prefix ../ prettier prettier-plugin-ini
@@ -32,13 +32,52 @@ jobs:
           token: ${{ secrets.BOT_PAT }}
 
       - name: Execute Prettier
+        id: execute
         run: |
           git fetch origin main
-          files=$(git diff --name-status origin/main | grep '.ini$' | awk '{print $2}')
+          errMsg=""
+
+          files=$(git diff --name-status origin/main | grep '.ini$' | awk '$1 != "D" {print $2}')
           for file in $files
           do
-            ../node_modules/.bin/prettier --write $file
+            echo "Formatting $file"
+            if res=$(../node_modules/.bin/prettier --write $file 2>&1)
+            then
+              echo "OK"
+            else
+              echo -n "::error::"
+              echo "$res" | tee res.out
+
+              errMsg+="<li><b>$file</b></li>"
+              errMsg+="<pre><code>"
+
+              while read line;
+              do
+                errMsg+="<div>$line</div>"
+              done < res.out
+
+              errMsg+="</pre></code>"
+            fi
           done
+
+          echo "message=$errMsg" >> $GITHUB_OUTPUT
+          if [ "$errMsg" != "" ]
+          then
+            exit 1
+          fi
+
+      - name: Report failure
+        if: failure()
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            **[Failed]** INI Formatter failed :x:
+            <details>
+              <summary>Error Messages</summary>
+              ${{ steps.execute.outputs.message }}
+            </details>
 
       - name: Commit and push
         uses: stefanzweifel/git-auto-commit-action@v4
