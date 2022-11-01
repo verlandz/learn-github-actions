@@ -1,6 +1,6 @@
 ---
 # [Autofix | JSON Formatter]
-#   will autofix your JSON format using 'jq'
+#   will autofix your JSON format using "jq"
 #   to your changes files.
 name: Autofix | JSON Formatter
 
@@ -19,7 +19,7 @@ jobs:
     if: github.actor != 'verlandz-bot'
     steps:
       - name: Install jq
-        run: sudo apt-get install jq
+        run: sudo apt-get install
 
       - name: Checkout pull-request branch
         uses: actions/checkout@v3
@@ -27,14 +27,43 @@ jobs:
           token: ${{ secrets.BOT_PAT }}
 
       - name: Execute jq
+        id: execute
         run: |
           git fetch origin main
-          files=$(git diff --name-status origin/main | grep '.json$' | awk '{print $2}')
+          errMsg=""
+
+          files=$(git diff --name-status origin/main | grep ".json$" | awk '{print $2}')
           for file in $files
           do
-            jq -r . $file > $file.tmp
-            mv $file.tmp $file
+            if res=$(jq -j . $file 2>&1)
+            then
+              jq -j . $file > $file.tmp
+              mv $file.tmp $file
+            else
+              msg="$file > $res"
+              errMsg+="- $msg<br>"
+              echo "::error:: $msg"
+            fi
           done
+
+          echo "message=$errMsg" >> $GITHUB_OUTPUT
+          if [ "$errMsg" != "" ]
+          then 
+            exit 1
+          fi
+
+      - name: Report failure
+        if: failure()
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            **[Failed]** JSON Formatter failed :x:
+            <details>
+              <summary>Error Messages</summary>
+              <pre>${{ steps.execute.outputs.message }}</pre>
+            </details>
 
       - name: Commit and push
         uses: stefanzweifel/git-auto-commit-action@v4
