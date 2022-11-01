@@ -49,8 +49,6 @@ jobs:
             if res=$(npx prettier --config $prettier_path --write $file 2>&1)
             then
               echo "OK"
-              # need PoC
-              # npx prettier --config $prettier_path --write $file
             else
               echo "$res" | tee res.out
 

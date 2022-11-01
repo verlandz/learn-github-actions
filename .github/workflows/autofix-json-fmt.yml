@@ -35,10 +35,12 @@ jobs:
           files=$(git diff --name-status origin/main | grep ".json$" | awk '{print $2}')
           for file in $files
           do
+            echo "Formatting $file"
             if res=$(jq -j . $file 2>&1)
             then
-              jq -j . $file > $file.tmp
-              mv $file.tmp $file
+              echo "OK"
+              # jq -j . $file > $file.tmp
+              # mv $file.tmp $file
             else
               msg="$file > $res"
               errMsg+="- $msg<br>"
