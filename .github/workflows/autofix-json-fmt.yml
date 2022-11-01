@@ -32,7 +32,8 @@ jobs:
           files=$(git diff --name-status origin/main | grep '.json$' | awk '{print $2}')
           for file in $files
           do
-            jq -j . $file
+            jq -r . $file > $file.tmp
+            mv $file.tmp $file
           done
 
       - name: Commit and push
