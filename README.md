@@ -5,7 +5,8 @@
 > \- from [Official Docs](https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions)
 
 ## Documentation
-[Google Docs](TBA)
+- [Official Docs](https://docs.github.com/en/actions/learn-github-actions/understanding-github-actions)
+- [Personal Docs](TBA)
 
 ## Note
 - This repo will be in private (mainly) and public (sometimes) due billing limitations. 
