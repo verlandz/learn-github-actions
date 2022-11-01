@@ -1,6 +1,6 @@
 ---
 # [Code Comparison]
-#   will compare the code between 'main' and 'pull-request' branch
+#   compare the code between 'main' and 'pull-request' branch
 #   which contains
 #     - code coverage
 #     - file changes
