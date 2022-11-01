@@ -1,7 +1,7 @@
 ---
 # [Autofix | YAML/YML Formatter]
 #   will autofix your YAML/YML format using "prettier"
-#   to your changes files.  
+#   to your changes files.
 name: Autofix | YAML/YML Formatter
 
 on:
