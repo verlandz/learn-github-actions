@@ -2,8 +2,4 @@ package dummy_go
 
 import "fmt"
 
-func  {
-	
-}
-
-
+func hi() { fmt.Println("hi") }
