@@ -32,25 +32,34 @@ jobs:
           git fetch origin main
           errMsg=""
 
-          files=$(git diff --name-status origin/main | grep ".json$" | awk '{print $2}')
+          files=$(git diff --name-status origin/main | grep ".json$" | awk '$1 != "D" {print $2}')
           for file in $files
           do
             echo "Formatting $file"
             if res=$(jq -j . $file 2>&1)
             then
+              jq -j . $file > res.out
+              mv res.out $file
               echo "OK"
-              # jq -j . $file > $file.tmp
-              # mv $file.tmp $file
             else
-              msg="$file > $res"
-              errMsg+="- $msg<br>"
-              echo "::error:: $msg"
+              echo -n "::error::"
+              echo "$res" | tee res.out
+
+              errMsg+="<li><b>$file</b></li>"
+              errMsg+="<pre><code>"
+              
+              while read line;  
+              do
+                errMsg+="<div>$line</div>"
+              done < res.out
+
+              errMsg+="</pre></code>"
             fi
           done
 
           echo "message=$errMsg" >> $GITHUB_OUTPUT
           if [ "$errMsg" != "" ]
-          then 
+          then
             exit 1
           fi
 
@@ -64,7 +73,7 @@ jobs:
             **[Failed]** JSON Formatter failed :x:
             <details>
               <summary>Error Messages</summary>
-              <pre>${{ steps.execute.outputs.message }}</pre>
+              ${{ steps.execute.outputs.message }}
             </details>
 
       - name: Commit and push
