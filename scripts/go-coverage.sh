@@ -1,8 +1,9 @@
 #!/bin/bash
 
 # var
-coverage_output=coverage.out
-coverage_result_output=coverage-result.out
+coverage_output=go-coverage.out
+coverage_result_output=go-coverage-result.out
+test_checker=go-test-checker.sh
 
 # clear the output
 cat /dev/null > ./$coverage_output
@@ -31,4 +32,4 @@ doCoverage () {
 }
 
 # execute
-doCoverage | tee ./$coverage_result_output && bash ./scripts/test-checker.sh ./$coverage_result_output
+doCoverage | tee ./$coverage_result_output && bash ./scripts/$test_checker ./$coverage_result_output

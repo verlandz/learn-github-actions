@@ -13,4 +13,4 @@ run:
 
 # Test the unitest
 test:
-	@bash ./scripts/coverage.sh
+	@bash ./scripts/go-coverage.sh

@@ -2,13 +2,13 @@
 
 file_name=$1
 threshold=60.0
-coverage_percentage_output=coverage-percentage.out
-coverage_message_output=coverage-message.out
+coverage_percentage_output=go-coverage-percentage.out
+coverage_message_output=go-coverage-message.out
 
 echo
-echo "========================================================="
-echo "             GO TEST CHECKER LMFAOWTFBBQ                 "
-echo "========================================================="
+echo "============================================="
+echo "             GO TEST CHECKER                 "
+echo "============================================="
 echo
 
 failed_test=$(grep -a "^FAIL.*\t" --text "$file_name")
