@@ -42,16 +42,15 @@ jobs:
           prettier_path=.github/workflows/supports/.prettierrc
           npx prettier --find-config-path $prettier_path
 
-          files=$(git diff --name-status origin/main | grep -E ".yaml$|.yml$" | awk '{print $2}')
+          files=$(git diff --name-status origin/main | grep -E ".yaml$|.yml$" | awk '$1 != "D" {print $2}')
           for file in $files
           do
             echo "Formatting $file"
             if res=$(npx prettier --config $prettier_path --write $file 2>&1)
             then
               echo "OK"
-              # need PoC
-              # npx prettier --config $prettier_path --write $file
             else
+              echo -n "::error::"
               echo "$res" | tee res.out
 
               errMsg+="<li><b>$file</b></li>"
