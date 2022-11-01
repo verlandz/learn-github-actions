@@ -1,10 +1,14 @@
 package dummy_go
 
-import 	"fmt"
+import (
+			"fmt"
+"log"
+)
 
 func 		getA() string {
 	res :=    "A"
 	fmt.Println(res)
+log.Println(res)
 	return   res
 }
 
@@ -14,5 +18,9 @@ func getB() int {
 
 
 		fmt.Println(res)
+	
+
+	log.Println(res)
+
 return res
 }

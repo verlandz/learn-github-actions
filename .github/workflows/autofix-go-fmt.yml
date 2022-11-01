@@ -29,6 +29,7 @@ jobs:
           token: ${{ secrets.BOT_PAT }}
 
       - name: Execute go fmt
+        id: execute
         run: |
           git fetch origin main
           errMsg=""
@@ -41,8 +42,10 @@ jobs:
             then
               echo "OK"
             else
+              echo "b1"
               echo -n "::error::"
               echo "$res" | tee res.out
+              echo "b2"
 
               errMsg+="<li><b>$file</b></li>"
               errMsg+="<pre><code>"
@@ -50,9 +53,11 @@ jobs:
               while read line;
               do
                 errMsg+="<div>$line</div>"
+                echo "debug errMsg(m) -> $errMsg"
               done < res.out
 
               errMsg+="</pre></code>"
+              echo "debug errMsg(ff) -> $errMsg"
             fi
           done
 
