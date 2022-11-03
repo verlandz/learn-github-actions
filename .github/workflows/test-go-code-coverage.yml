@@ -1,0 +1,194 @@
+---
+# [Test | GO Code Coverage]
+#   test your GO coverage files using "go test" to
+#   - "main" branch
+#   - "your" branch
+#   - merged("main"+"your") branch
+# TODO: failover, threshold coverage
+name: Test | GO Code Coverage
+
+on:
+  pull_request:
+    branches: main
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}-${{ github.actor }}
+  cancel-in-progress: true
+
+jobs:
+  ignore-bot:
+    runs-on: ubuntu-latest
+    if: github.actor != 'verlandz-bot'
+    steps:
+      - run: ''
+
+  test-coverage-main-branch:
+    runs-on: ubuntu-latest
+    needs: [ignore-bot]
+    outputs:
+      percentage: ${{ steps.coverage-output.outputs.percentage }}
+      message: ${{ steps.coverage-output.outputs.message }}
+    steps:
+      - name: Install Go18
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18.x
+
+      - name: Checkout main branch
+        uses: actions/checkout@v3
+        with:
+          ref: main
+          token: ${{ secrets.BOT_PAT }}
+
+      - name: Test main branch
+        run: make test
+
+      - name: Create coverage output
+        id: coverage-output
+        if: always()
+        run: |
+          echo "$(git log -1)"
+          echo "go-coverage-percentage: $(cat go-coverage-percentage.out)"
+          echo "go-coverage-message:\n$(cat go-coverage-message.out)"
+
+          covMsg=$(cat go-coverage-message.out)
+          covMsg="${covMsg//'%'/'<br>'}"
+          covMsg="${covMsg//$'\n'/'<br>'}"
+          covMsg="${covMsg//$'\r'/'<br>'}"
+
+          echo "percentage=$(cat go-coverage-percentage.out)" >> $GITHUB_OUTPUT
+          echo "message=$covMsg" >> $GITHUB_OUTPUT
+
+  test-coverage-your-branch:
+    runs-on: ubuntu-latest
+    needs: [ignore-bot]
+    outputs:
+      percentage: ${{ steps.coverage-output.outputs.percentage }}
+      message: ${{ steps.coverage-output.outputs.message }}
+    steps:
+      - name: Install Go18
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18.x
+
+      - name: Checkout your branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
+          token: ${{ secrets.BOT_PAT }}
+
+      - name: Test your branch
+        run: make test
+
+      - name: Create coverage output
+        id: coverage-output
+        if: always()
+        run: |
+          echo "$(git log -1)"
+          echo "go-coverage-percentage: $(cat go-coverage-percentage.out)"
+          echo "go-coverage-message:\n$(cat go-coverage-message.out)"
+
+          covMsg=$(cat go-coverage-message.out)
+          covMsg="${covMsg//'%'/'<br>'}"
+          covMsg="${covMsg//$'\n'/'<br>'}"
+          covMsg="${covMsg//$'\r'/'<br>'}"
+
+          echo "percentage=$(cat go-coverage-percentage.out)" >> $GITHUB_OUTPUT
+          echo "message=$covMsg" >> $GITHUB_OUTPUT
+
+  test-coverage-merged-branch:
+    runs-on: ubuntu-latest
+    needs: [ignore-bot]
+    outputs:
+      percentage: ${{ steps.coverage-output.outputs.percentage }}
+      message: ${{ steps.coverage-output.outputs.message }}
+    steps:
+      - name: Install Go18
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18.x
+
+      - name: Checkout merged branch
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.BOT_PAT }}
+
+      - name: Test merged branch
+        run: make test
+
+      - name: Create coverage output
+        id: coverage-output
+        if: always()
+        run: |
+          echo "$(git log -1)"
+          echo "go-coverage-percentage: $(cat go-coverage-percentage.out)"
+          echo "go-coverage-message:\n$(cat go-coverage-message.out)"
+
+          covMsg=$(cat go-coverage-message.out)
+          covMsg="${covMsg//'%'/'<br>'}"
+          covMsg="${covMsg//$'\n'/'<br>'}"
+          covMsg="${covMsg//$'\r'/'<br>'}"          
+
+          echo "percentage=$(cat go-coverage-percentage.out)" >> $GITHUB_OUTPUT
+          echo "message=$covMsg" >> $GITHUB_OUTPUT
+
+  comparison:
+    runs-on: ubuntu-latest
+    needs: [test-coverage-main-branch, test-coverage-your-branch, test-coverage-merged-branch]
+    env:
+      COV_MAIN_BRANCH: ${{ needs.test-coverage-main-branch.outputs.percentage }}
+      COV_YOUR_BRANCH: ${{ needs.test-coverage-your-branch.outputs.percentage }}
+      COV_MERGED_BRANCH: ${{ needs.test-coverage-merged-branch.outputs.percentage }}
+    steps:
+      - name: Comparison
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.BOT_PAT }}
+          script: |
+            let covMainBranch = parseFloat(${{ env.COV_MAIN_BRANCH }}); covMainBranch = covMainBranch ? covMainBranch : 0;
+            let covYourBranch = parseFloat(${{ env.COV_YOUR_BRANCH }}); covYourBranch = covYourBranch ? covYourBranch : 0;
+            let covMergedBranch = parseFloat(${{ env.COV_MERGED_BRANCH }}); covMergedBranch = covMergedBranch ? covMergedBranch : 0;
+
+            // diff
+            let fixedDigits = 2;
+            let diffYourToMain = (covYourBranch - covMainBranch).toFixed(fixedDigits);
+            let diffMergedToMain = (covMergedBranch - covMainBranch).toFixed(fixedDigits);
+
+            // diff color
+            let diffYourToMainColor; 
+            if (diffYourToMain > 0) diffYourToMainColor = "green";
+            else if (diffYourToMain < 0) diffYourToMainColor = "red";
+            else diffYourToMainColor = "gray";
+
+            let diffMergedToMainColor;
+            if (diffMergedToMain > 0) diffMergedToMainColor = "green";
+            else if (diffMergedToMain < 0) diffMergedToMainColor = "red";
+            else diffMergedToMainColor = "gray";
+
+            // status
+            let statusIcon;
+            if (diffMergedToMain >= 0) statusIcon = ":white_check_mark:"
+            else statusIcon = ":x:"
+
+            // body
+            let body = ` 
+              ### Code Coverage ${statusIcon}
+
+              Branch | Coverage | Progress
+              --- | --- | --- |
+              \`main\` | ${covMainBranch}% | - |
+              \`your\` | ${covYourBranch}% | $\\textcolor{ ${diffYourToMainColor} }{\\text{ ${diffYourToMain}\\\\% }}$ |
+              \`merged\` | ${covMergedBranch}% | $\\textcolor{ ${diffMergedToMainColor} }{\\text{ ${diffMergedToMain}\\\\% }}$ |
+
+              > __Note__
+              > - PASS / NOT depends on \`merged\` coverage
+              > - \`your\` coverage exist to give visibility of your progress with last HEAD
+              > -  The threshold is **60%**
+            `
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            })

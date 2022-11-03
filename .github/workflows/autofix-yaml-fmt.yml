@@ -28,7 +28,7 @@ jobs:
       - name: Install npm
         run: npm install --save-dev --save-exact prettier
 
-      - name: Checkout pull-request branch
+      - name: Checkout branch
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.BOT_PAT }}
@@ -67,7 +67,7 @@ jobs:
           token: ${{ secrets.BOT_PAT }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            ### :x: YAML/YML Formatter
+            ### YAML/YML Formatter :x:
             <details>
               <summary>Details</summary>
               <pre>${{ steps.execute.outputs.msg }}</pre>
