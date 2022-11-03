@@ -36,6 +36,7 @@ jobs:
           echo "stat=$diffStat" >> $GITHUB_OUTPUT
 
       - name: Report failure
+        if: failure()
         uses: peter-evans/create-or-update-comment@v2
         with:
           token: ${{ secrets.BOT_PAT }}
@@ -45,23 +46,15 @@ jobs:
             failed to get file changes
 
       - name: Report result
-        uses: actions/github-script@v6
+        uses: peter-evans/create-or-update-comment@v2
         with:
-          github-token: ${{ secrets.BOT_PAT }}
-          script: |
-            let body = `
-              ### File Changes
-              ${{ steps.get-file-changes.outputs.stat }}
+          token: ${{ secrets.BOT_PAT }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ### File Changes
+            ${{ steps.get-file-changes.outputs.stat }}
 
-              <details>
-              <summary>Details</summary>
-              <pre>${{ steps.get-file-changes.outputs.diff }}</pre>
-              </details>
-            `
-
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: body
-            })
+            <details>
+            <summary>Details</summary>
+            <pre>${{ steps.get-file-changes.outputs.diff }}</pre>
+            </details>
