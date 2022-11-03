@@ -10,8 +10,8 @@ func Test_getA(t *testing.T) {
 		want string
 	}{
 		{
-			name: "sample",
-			want: "A",
+			name: "sssss",
+			want: "Assss",
 		},
 	}
 	for _, tt := range tests {
