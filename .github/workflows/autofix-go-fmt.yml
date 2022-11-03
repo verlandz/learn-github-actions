@@ -46,14 +46,14 @@ jobs:
               echo "$res" | tee res.out
 
               errMsg+="<li><b>$file</b></li>"
-              errMsg+="<pre><code>"
+              errMsg+="<pre>"
 
               while read line;
               do
                 errMsg+="<div>$line</div>"
               done < res.out
 
-              errMsg+="</pre></code>"
+              errMsg+="</pre>"
             fi
           done
 
