@@ -36,12 +36,13 @@ jobs:
           echo "stat=$diffStat" >> $GITHUB_OUTPUT
 
       - name: Report failure
-        if: failure()
         uses: peter-evans/create-or-update-comment@v2
         with:
           token: ${{ secrets.BOT_PAT }}
           issue-number: ${{ github.event.pull_request.number }}
-          body: '**[Failed]** Fail to get file changes :x:'
+          body: |
+            ### :x: File Changes 
+            failed to get file changes
 
       - name: Report result
         uses: actions/github-script@v6
