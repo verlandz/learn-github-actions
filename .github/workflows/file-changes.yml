@@ -26,9 +26,9 @@ jobs:
         run: |
           git fetch origin main
           diffFiles=$(git diff --name-status origin/main)
-          diffFiles="${diffFiles//'%'/'%25'}"
-          diffFiles="${diffFiles//$'\n'/'%0A'}"
-          diffFiles="${diffFiles//$'\r'/'%0D'}"
+          diffFiles="${diffFiles//'%'/'<br>'}"
+          diffFiles="${diffFiles//$'\n'/'<br>'}"
+          diffFiles="${diffFiles//$'\r'/'<br>'}"
           echo "diff=$diffFiles" >> $GITHUB_OUTPUT
 
       - name: Report failure
@@ -45,17 +45,13 @@ jobs:
           github-token: ${{ secrets.BOT_PAT }}
           script: |
             let body = `
-            ### File Changes
-
-            <details>
-            <summary>Details</summary>
-            
-            \`\`\`${{ steps.get-file-changes.outputs.diff }}
-            \`\`\`
-
-            </details>
+              ### File Changes
+              <details>
+              <summary>Details</summary>
+              <pre>${{ steps.get-file-changes.outputs.diff }}</pre>
+              </details>
             `
-
+            
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
