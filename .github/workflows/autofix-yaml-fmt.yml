@@ -42,7 +42,7 @@ jobs:
           prettier_path=.github/workflows/supports/.prettierrc
           npx prettier --find-config-path $prettier_path
 
-          files=$(git diff --name-status origin/main | grep -E ".yaml$|.yml$" | awk '$1 != "D" {print $2}')
+          files=$(git diff --name-status origin/main | grep -E ".yaml$|.yml$" | awk '$1 != "D" {print $NF}')
           for file in $files
           do
             echo "Formatting $file"

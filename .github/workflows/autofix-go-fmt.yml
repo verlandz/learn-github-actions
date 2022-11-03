@@ -34,7 +34,7 @@ jobs:
           git fetch origin main
           errMsg=""
 
-          files=$(git diff --name-status origin/main | grep '.go$' | awk '$1 != "D" {print $2}')
+          files=$(git diff --name-status origin/main | grep '.go$' | awk '$1 != "D" {print $NF}')
           for file in $files
           do
             echo "Formatting $file"
