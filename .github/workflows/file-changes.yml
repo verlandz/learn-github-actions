@@ -30,10 +30,10 @@ jobs:
           diffFiles="${diffFiles//'%'/'<br>'}"
           diffFiles="${diffFiles//$'\n'/'<br>'}"
           diffFiles="${diffFiles//$'\r'/'<br>'}"
-          echo "diff=$diffFiles" >> $GITHUB_OUTPUT
+          echo "files=$diffFiles" >> $GITHUB_OUTPUT
 
-          diffStat=$(git diff --shortstat origin/main)
-          echo "stat=$diffStat" >> $GITHUB_OUTPUT
+          diffStats=$(git diff --shortstat origin/main)
+          echo "stats=$diffStats" >> $GITHUB_OUTPUT
 
       - name: Report failure
         if: failure()
@@ -52,9 +52,9 @@ jobs:
           issue-number: ${{ github.event.pull_request.number }}
           body: |
             ### File Changes
-            ${{ steps.get-file-changes.outputs.stat }}
+            ${{ steps.get-file-changes.outputs.stats }}
 
             <details>
             <summary>Details</summary>
-            <pre>${{ steps.get-file-changes.outputs.diff }}</pre>
+            <pre>${{ steps.get-file-changes.outputs.files }}</pre>
             </details>
