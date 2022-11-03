@@ -37,7 +37,6 @@ jobs:
         id: execute
         run: |
           git fetch origin main
-          errMsg=""
 
           prettier_path=.github/workflows/supports/.prettierrc
           npx prettier --find-config-path $prettier_path
@@ -50,26 +49,16 @@ jobs:
             then
               echo "OK"
             else
-              echo -n "::error::"
-              echo "$res" | tee res.out
+              echo -n "::error:: $res"
+              errMsg="$res"
+              errMsg="${errMsg//'%'/'<br>'}"
+              errMsg="${errMsg//$'\n'/'<br>'}"
+              errMsg="${errMsg//$'\r'/'<br>'}"
 
-              errMsg+="<li><b>$file</b></li>"
-              errMsg+="<pre>"
-
-              while read line;
-              do
-                errMsg+="<div>$line</div>"
-              done < res.out
-
-              errMsg+="</pre>"
+              echo "msg=$errMsg" >> $GITHUB_OUTPUT
+              exit 1
             fi
           done
-
-          echo "message=$errMsg" >> $GITHUB_OUTPUT
-          if [ "$errMsg" != "" ]
-          then
-            exit 1
-          fi
 
       - name: Report failure
         if: failure()
@@ -78,10 +67,10 @@ jobs:
           token: ${{ secrets.BOT_PAT }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            **[Failed]** YAML/YML Formatter failed :x:
+            ### :x: YAML/YML Formatter
             <details>
-              <summary>Error Messages</summary>
-              ${{ steps.execute.outputs.message }}
+              <summary>Details</summary>
+              <pre>${{ steps.execute.outputs.msg }}</pre>
             </details>
 
       - name: Commit and push
@@ -89,5 +78,5 @@ jobs:
         with:
           branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
           commit_user_name: 'verlandz-bot'
-          commit_user_email: '111285852+verlandz-bot@users.noreply.github.com'
+          commit_user_email: 'verlandz-bot@users.noreply.github.com'
           commit_message: '[BOT] Autofix | YAML/YML Formatter'
