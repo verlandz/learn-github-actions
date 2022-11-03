@@ -1,6 +1,6 @@
 ---
 # [File Changes]
-#   get file changes between 'main' and 'pull-request' branch
+#   get file changes between "main" and "pull-request" branch
 name: File changes
 
 on:
@@ -26,6 +26,9 @@ jobs:
         run: |
           git fetch origin main
           diffFiles=$(git diff --name-status origin/main)
+          diffFiles="${diffFiles//'%'/'%25'}"
+          diffFiles="${diffFiles//$'\n'/'%0A'}"
+          diffFiles="${diffFiles//$'\r'/'%0D'}"
           echo "diff=$diffFiles" >> $GITHUB_OUTPUT
 
       - name: Report failure
@@ -37,12 +40,25 @@ jobs:
           body: '**[Failed]** Fail to get file changes :x:'
     
       - name: Report result
-        uses: peter-evans/create-or-update-comment@v2
+        uses: actions/github-script@v6
         with:
-          token: ${{ secrets.BOT_PAT }}
-          issue-number: ${{ github.event.pull_request.number }}
-          body: |
+          github-token: ${{ secrets.BOT_PAT }}
+          script: |
+            let body = `
+            ### File Changes
+
             <details>
-              <summary>File Changes</summary>
-              <pre>${{ steps.get-file-changes.outputs.diff }}</pre>
+            <summary>Details</summary>
+            
+            \`\`\`${{ steps.get-file-changes.outputs.diff }}
+            \`\`\`
+
             </details>
+            `
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            })
