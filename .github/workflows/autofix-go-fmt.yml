@@ -59,7 +59,7 @@ jobs:
           token: ${{ secrets.BOT_PAT }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            ### :x: GO Formatter
+            ### GO Formatter :x:
             <details>
               <summary>Details</summary>
               <pre>${{ steps.execute.outputs.msg }}</pre>
