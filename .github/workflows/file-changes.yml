@@ -1,0 +1,60 @@
+---
+# [File Changes]
+#   get file changes between "main" and "pull-request" branch
+name: File changes
+
+on:
+  pull_request:
+    branches: main
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}-${{ github.actor }}
+  cancel-in-progress: true
+
+jobs:
+  file-changes:
+    runs-on: ubuntu-latest
+    if: github.actor != 'verlandz-bot'
+    steps:
+      - name: Checkout pull-request branch
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.BOT_PAT }}
+
+      - name: Get file changes
+        id: get-file-changes
+        run: |
+          git fetch origin main
+          diffFiles=$(git diff --name-status origin/main)
+          diffFiles="${diffFiles//'%'/'<br>'}"
+          diffFiles="${diffFiles//$'\n'/'<br>'}"
+          diffFiles="${diffFiles//$'\r'/'<br>'}"
+          echo "diff=$diffFiles" >> $GITHUB_OUTPUT
+
+      - name: Report failure
+        if: failure()
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: '**[Failed]** Fail to get file changes :x:'
+
+      - name: Report result
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.BOT_PAT }}
+          script: |
+            let body = `
+              ### File Changes
+              <details>
+              <summary>Details</summary>
+              <pre>${{ steps.get-file-changes.outputs.diff }}</pre>
+              </details>
+            `
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            })

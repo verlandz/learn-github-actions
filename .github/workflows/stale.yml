@@ -1,7 +1,7 @@
 ---
 # [Stale]
-#   will put label 'stale' on issues/PRs that don't have any activity in the past N days
-#   and will be automatically closed after M days.
+#   put label 'stale' on issues/PRs that don't have any activity in the past N days
+#   and will be automatically closed after M days without activity.
 name: Stale
 
 on:

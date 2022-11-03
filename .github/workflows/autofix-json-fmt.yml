@@ -1,6 +1,6 @@
 ---
 # [Autofix | JSON Formatter]
-#   will autofix your JSON format using "jq"
+#   autofix your JSON format using "jq"
 #   to your changes files.
 name: Autofix | JSON Formatter
 
