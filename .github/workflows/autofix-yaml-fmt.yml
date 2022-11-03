@@ -54,7 +54,7 @@ jobs:
               # echo "$res" | tee res.out
 
               echo ">> START <<"
-              $echo "$res"
+              echo "$res"
 
               echo ">> PROCESSING <<"
               errMsg=$(echo "$res")
