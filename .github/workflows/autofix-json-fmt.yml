@@ -21,7 +21,7 @@ jobs:
       - name: Install jq
         run: sudo apt-get install
 
-      - name: Checkout pull-request branch
+      - name: Checkout branch
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.BOT_PAT }}

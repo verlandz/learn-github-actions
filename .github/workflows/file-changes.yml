@@ -1,6 +1,6 @@
 ---
 # [File Changes]
-#   get file changes between "main" and "pull-request" branch
+#   get file changes between "main" and "your" branch
 name: File changes
 
 on:
@@ -16,7 +16,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor != 'verlandz-bot'
     steps:
-      - name: Checkout pull-request branch
+      - name: Checkout branch
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.BOT_PAT }}

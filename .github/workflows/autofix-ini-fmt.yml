@@ -26,7 +26,7 @@ jobs:
       - name: Install prettier-plugin-ini
         run: npm install --prefix ../ prettier prettier-plugin-ini
 
-      - name: Checkout pull-request branch
+      - name: Checkout branch
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.BOT_PAT }}
