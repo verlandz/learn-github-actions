@@ -25,11 +25,15 @@ jobs:
         id: get-file-changes
         run: |
           git fetch origin main
+
           diffFiles=$(git diff --name-status origin/main)
           diffFiles="${diffFiles//'%'/'<br>'}"
           diffFiles="${diffFiles//$'\n'/'<br>'}"
           diffFiles="${diffFiles//$'\r'/'<br>'}"
           echo "diff=$diffFiles" >> $GITHUB_OUTPUT
+
+          diffStat=$(git diff --shortstat origin/main)
+          echo "stat=$diffStat" >> $GITHUB_OUTPUT
 
       - name: Report failure
         if: failure()
@@ -46,6 +50,8 @@ jobs:
           script: |
             let body = `
               ### File Changes
+              ${{ steps.get-file-changes.outputs.stat }}
+
               <details>
               <summary>Details</summary>
               <pre>${{ steps.get-file-changes.outputs.diff }}</pre>
