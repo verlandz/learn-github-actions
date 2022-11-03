@@ -38,7 +38,7 @@ jobs:
           token: ${{ secrets.BOT_PAT }}
           issue-number: ${{ github.event.pull_request.number }}
           body: '**[Failed]** Fail to get file changes :x:'
-    
+
       - name: Report result
         uses: actions/github-script@v6
         with:
@@ -51,7 +51,7 @@ jobs:
               <pre>${{ steps.get-file-changes.outputs.diff }}</pre>
               </details>
             `
-            
+
             github.rest.issues.createComment({
               issue_number: context.issue.number,
               owner: context.repo.owner,
