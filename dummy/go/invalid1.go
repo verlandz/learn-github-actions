@@ -1,10 +1,5 @@
 package dummy_go
 
-import "fmt"
-
-func  {
-	
+func gg() string {
+	return 					"wp"
 }
-
-
-
