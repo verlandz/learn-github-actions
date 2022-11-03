@@ -51,21 +51,31 @@ jobs:
               echo "OK"
             else
               echo -n "::error::"
-              echo "$res" | tee res.out
+              # echo "$res" | tee res.out
 
-              errMsg+="<li><b>$file</b></li>"
-              errMsg+="<pre>"
+              errMsg=$(echo $res)
+              errMsg="${errMsg//'%'/'<br>'}"
+              errMsg="${errMsg//$'\n'/'<br>'}"
+              errMsg="${errMsg//$'\r'/'<br>'}"
 
-              while read line;
-              do
-                errMsg+="<div>$line</div>"
-              done < res.out
+              # debug
+              echo ">> DEBUG <<"
+              # cat res.out
+              echo "$errMsg"
 
-              errMsg+="</pre>"
+              # errMsg+="<li><b>$file</b></li>"
+              # errMsg+="<pre>"
+
+              # while read line;
+              # do
+              #   errMsg+="<div>$line</div>"
+              # done < res.out
+
+              # errMsg+="</pre>"
             fi
           done
 
-          echo "message=$errMsg" >> $GITHUB_OUTPUT
+          echo "msg=$errMsg" >> $GITHUB_OUTPUT
           if [ "$errMsg" != "" ]
           then
             exit 1
@@ -78,10 +88,10 @@ jobs:
           token: ${{ secrets.BOT_PAT }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            **[Failed]** YAML/YML Formatter failed :x:
+            ### :x: YAML/YML Formatter failed
             <details>
-              <summary>Error Messages</summary>
-              ${{ steps.execute.outputs.message }}
+              <summary>Details</summary>
+              ${{ steps.execute.outputs.msg }}
             </details>
 
       - name: Commit and push

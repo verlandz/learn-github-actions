@@ -1,21 +1,222 @@
 ---
-doe: 'a deer, a female deer'
-ray: 'a drop of golden sun'
-pi: 3.14159
-xmas: true
-french-hens: 3
-calling-birds:
-  - huey
-  - dewey
-  - louie
-  - fr    ed
-xmas-fifth-day:
-  calling-birds: four
-  french-hens: 3
-  golden-rings: 5
-  partridges:
-    count: 1
-    location: 'a pear tree'
-    turtle    -doves: two
-    items: [1, 2, 3, 4, 5]
-    names: ['one', 'two', 'three', 'four']
+# [Code Comparison]
+#   will compare the code between "Main" branch and "PR" branch
+#   which contains 
+#     - code coverage
+#     - file changes
+name: Code Comparison
+
+on:
+  pull_request:
+    branches: main
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}-${{ github.actor }}
+  cancel-in-progress: true
+
+jobs:
+  init:
+    runs-on: [runnerset=default-runners, env=production]
+    if: github.actor != 'tkpd-home-bot'
+    steps:
+      - run: ''
+
+  test-coverage-main-branch:
+    runs-on: [runnerset=default-runners, env=production]
+    needs: [init]
+    outputs:
+      message: ${{ steps.coverage-output.outputs.message }}
+      coverage: ${{ steps.coverage-output.outputs.coverage }}
+    steps:
+      - name: Configure private git
+        env:
+          BOT_NAME: tkpd-home-bot
+        BOT_PAT: ${{ secrets.BOT_PAT }}
+        run: git config --global url."https://$BOT_NAME:$BOT_PAT@github.com".insteadOf "https://github.com"
+        
+      - name: Install Go14
+      uses: actions/setup-go@v2
+        with:
+          go-version: 1.14.x
+
+      - name: Checkout main branch
+        uses: actions/checkout@v3
+        with:
+          ref: main
+          token: ${{ secrets.BOT_PAT }}
+
+      - name: Test Main Branch
+        run: make test
+      
+      - name: Create coverage output
+        id: coverage-output
+        if: always()
+        run: |
+          covMsg=$(cat coverage-message.out)
+          covMsg="${covMsg//'%'/'%25'}"
+          covMsg="${covMsg//$'\n'/'%0A'}"
+          covMsg="${covMsg//$'\r'/'%0D'}"          
+          echo "::set-output name=message::$covMsg"
+          echo "::set-output name=coverage::$(cat coverage-percentage.out)"
+
+      - name: Report failure
+        if: failure()
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            **[Failed]** Test coverage `main` branch failed :x:
+            <details>
+              <summary>Error Messages</summary>
+              
+              ${{ steps.coverage-output.outputs.message }}
+              
+            </details>
+
+  test-coverage-pr-branch:
+    runs-on: [runnerset=default-runners, env=production]
+    needs: [init]
+    outputs:
+      message: ${{ steps.coverage-output.outputs.message }}
+      coverage: ${{ steps.coverage-output.outputs.coverage }}
+    steps:
+      - name: Configure private git
+        env:
+          BOT_NAME: tkpd-home-bot
+        BOT_PAT: ${{ secrets.BOT_PAT }}
+        run: git config --global url."https://$BOT_NAME:$BOT_PAT@github.com".insteadOf "https://github.com"
+
+      - name: Install Go14
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.14.x
+
+      - name: Checkout PR branch
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.BOT_PAT }}
+
+      - name: Test PR branch
+        run: make test
+
+      - name: Create coverage output
+      id: coverage-output
+           if: always()
+          run: |
+          covMsg=$(cat coverage-message.out)
+          covMsg="${covMsg//'%'/'%25'}"
+          covMsg="${covMsg//$'\n'/'%0A'}"
+          covMsg="${covMsg//$'\r'/'%0D'}"          
+          echo "::set-output name=message::$covMsg"
+          echo "::set-output name=coverage::$(cat coverage-percentage.out)"
+
+      - name: Report failure
+        if: failure()
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            **[Failed]** Test coverage `PR` branch failed :x:
+            <details>
+              <summary>Error Messages</summary>
+              
+              ${{ steps.coverage-output.outputs.message }}
+              
+            </details>
+ 
+  diff-file-changes:
+    runs-on: [runnerset=default-runners, env=production]
+             needs: [init]
+    outputs:
+      diff: ${{ steps.get-file-changes.outputs.diff }}
+    steps:
+      - name: Configure private git
+        env:
+          BOT_NAME: tkpd-home-bot
+          BOT_PAT: ${{ secrets.BOT_PAT }}
+        run: git config --global url."https://$BOT_NAME:$BOT_PAT@github.com".insteadOf "https://github.com"
+    
+      - name: Checkout PR branch
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.BOT_PAT }}
+
+      - name: Get file changes
+    id: get-file-changes
+        run: |
+          git fetch origin main
+          diffFiles=$(git diff --name-status origin/main)
+          diffFiles="${diffFiles//'%'/'%25'}"
+          diffFiles="${diffFiles//$'\n'/'%0A'}"
+          diffFiles="${diffFiles//$'\r'/'%0D'}"
+          echo "::set-output name=diff::$diffFiles"
+          
+      - name: Report failure
+        if: failure()
+        uses: peter-evans/create-or-update-comment@v2
+        with:
+          token: ${{ secrets.BOT_PAT }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: "**[Failed]** Diff file changes failed :x:"
+
+  comparison:
+    runs-on: [runnerset=default-runners, env=production]
+    needs: [test-coverage-main-branch, test-coverage-pr-branch, diff-file-changes]
+    env:
+      COV_MAIN_BRANCH: ${{ needs.test-coverage-main-branch.outputs.coverage }}
+      COV_PR_BRANCH: ${{ needs.test-coverage-pr-branch.outputs.coverage }}
+      DIFF_FILE_CHANGES: ${{ needs.diff-file-changes.outputs.diff }}
+    steps:
+      - name: Comparison
+        uses: actions/github-script@v6
+        with:
+              github-token: ${{ secrets.BOT_PAT }}
+      script: |          
+            let covMainBranch = parseFloat(${{ env.COV_MAIN_BRANCH }});
+            covMainBranch = covMainBranch ? covMainBranch : 0;
+
+            let covPRBranch = parseFloat(${{ env.COV_PR_BRANCH }});
+            covPRBranch = covPRBranch ? covPRBranch : 0;
+            
+            let covDiff = Math.abs(covMainBranch-covPRBranch);
+            
+            let covProgressIcon = '';
+                 if (covPRBranch > covMainBranch) {
+              covProgressIcon = ':arrow_double_up:';
+            } else if (covPRBranch < covMainBranch) {
+              covProgressIcon = ':arrow_double_down:';
+            } else {
+              covProgressIcon = ':left_right_arrow:';
+            }
+            
+            let fixedDigits = 2;
+            covMainBranch = covMainBranch.toFixed(fixedDigits);
+            covPRBranch = covPRBranch.toFixed(fixedDigits);
+            covDiff = covDiff.toFixed(fixedDigits);
+            
+            // code coverage
+            let body = `**[Code Coverage]**`;
+            body += ` Main: ${covMainBranch}%`;
+            body += ` | PR: ${covPRBranch}%`;
+            body += ` | Diff: ${covDiff}% ${covProgressIcon}`;
+            
+            // file changes
+            body += `
+              <details>
+              <summary>File Changes</summary>
+
+               \`\`\`
+               ${{ env.DIFF_FILE_CHANGES }}
+               \`\`\`
+
+              </details>
+            `
+            
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            })
