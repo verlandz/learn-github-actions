@@ -50,10 +50,14 @@ jobs:
             then
               echo "OK"
             else
-              echo -n "::error::"
+              # echo -n "::error::"
               # echo "$res" | tee res.out
 
-              errMsg=$(echo $res)
+              echo ">> START <<"
+              $echo "$res"
+
+              echo ">> PROCESSING <<"
+              errMsg=$(echo "$res")
               errMsg="${errMsg//'%'/'<br>'}"
               errMsg="${errMsg//$'\n'/'<br>'}"
               errMsg="${errMsg//$'\r'/'<br>'}"
