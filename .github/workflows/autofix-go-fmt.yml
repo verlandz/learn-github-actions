@@ -34,7 +34,7 @@ jobs:
           git fetch origin main
           errMsg=""
 
-          files=$(git diff --name-status origin/main | grep '.go$' | awk '$1 != "D" {print $2}')
+          files=$(git diff --name-status origin/main | grep '.go$' | awk '$1 != "D" {print $NF}')
           for file in $files
           do
             echo "Formatting $file"
@@ -46,14 +46,14 @@ jobs:
               echo "$res" | tee res.out
 
               errMsg+="<li><b>$file</b></li>"
-              errMsg+="<pre><code>"
+              errMsg+="<pre>"
 
               while read line;
               do
                 errMsg+="<div>$line</div>"
               done < res.out
 
-              errMsg+="</pre></code>"
+              errMsg+="</pre>"
             fi
           done
 

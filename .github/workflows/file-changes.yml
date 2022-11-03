@@ -25,11 +25,15 @@ jobs:
         id: get-file-changes
         run: |
           git fetch origin main
+
           diffFiles=$(git diff --name-status origin/main)
           diffFiles="${diffFiles//'%'/'<br>'}"
           diffFiles="${diffFiles//$'\n'/'<br>'}"
           diffFiles="${diffFiles//$'\r'/'<br>'}"
-          echo "diff=$diffFiles" >> $GITHUB_OUTPUT
+          echo "files=$diffFiles" >> $GITHUB_OUTPUT
+
+          diffStats=$(git diff --shortstat origin/main)
+          echo "stats=$diffStats" >> $GITHUB_OUTPUT
 
       - name: Report failure
         if: failure()
@@ -37,24 +41,20 @@ jobs:
         with:
           token: ${{ secrets.BOT_PAT }}
           issue-number: ${{ github.event.pull_request.number }}
-          body: '**[Failed]** Fail to get file changes :x:'
+          body: |
+            ### :x: File Changes 
+            failed to get file changes
 
       - name: Report result
-        uses: actions/github-script@v6
+        uses: peter-evans/create-or-update-comment@v2
         with:
-          github-token: ${{ secrets.BOT_PAT }}
-          script: |
-            let body = `
-              ### File Changes
-              <details>
-              <summary>Details</summary>
-              <pre>${{ steps.get-file-changes.outputs.diff }}</pre>
-              </details>
-            `
+          token: ${{ secrets.BOT_PAT }}
+          issue-number: ${{ github.event.pull_request.number }}
+          body: |
+            ### File Changes
+            ${{ steps.get-file-changes.outputs.stats }}
 
-            github.rest.issues.createComment({
-              issue_number: context.issue.number,
-              owner: context.repo.owner,
-              repo: context.repo.repo,
-              body: body
-            })
+            <details>
+            <summary>Details</summary>
+            <pre>${{ steps.get-file-changes.outputs.files }}</pre>
+            </details>
