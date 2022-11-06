@@ -4,7 +4,10 @@
 #   - "main" branch
 #   - "your" branch
 #   - merged("main"+"your") branch
-# TODO: failover, threshold coverage
+#
+# NOTE:
+#   - This job won't work properly if `make test` and supporting scripts not well implemented
+#   - The verdict based on merged pull-request, so don't worry about failing in `main`
 name: Test | GO Code Coverage
 
 on:
@@ -26,6 +29,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ignore-bot]
     outputs:
+      threshold: ${{ steps.coverage-output.outputs.threshold }}
       percentage: ${{ steps.coverage-output.outputs.percentage }}
       message: ${{ steps.coverage-output.outputs.message }}
     steps:
@@ -56,6 +60,7 @@ jobs:
           covMsg="${covMsg//$'\n'/'<br>'}"
           covMsg="${covMsg//$'\r'/'<br>'}"
 
+          echo "threshold=$(cat go-coverage-threshold.out)" >> $GITHUB_OUTPUT
           echo "percentage=$(cat go-coverage-percentage.out)" >> $GITHUB_OUTPUT
           echo "message=$covMsg" >> $GITHUB_OUTPUT
 
@@ -63,6 +68,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ignore-bot]
     outputs:
+      threshold: ${{ steps.coverage-output.outputs.threshold }}
       percentage: ${{ steps.coverage-output.outputs.percentage }}
       message: ${{ steps.coverage-output.outputs.message }}
     steps:
@@ -93,6 +99,7 @@ jobs:
           covMsg="${covMsg//$'\n'/'<br>'}"
           covMsg="${covMsg//$'\r'/'<br>'}"
 
+          echo "threshold=$(cat go-coverage-threshold.out)" >> $GITHUB_OUTPUT
           echo "percentage=$(cat go-coverage-percentage.out)" >> $GITHUB_OUTPUT
           echo "message=$covMsg" >> $GITHUB_OUTPUT
 
@@ -100,6 +107,7 @@ jobs:
     runs-on: ubuntu-latest
     needs: [ignore-bot]
     outputs:
+      threshold: ${{ steps.coverage-output.outputs.threshold }}
       percentage: ${{ steps.coverage-output.outputs.percentage }}
       message: ${{ steps.coverage-output.outputs.message }}
     steps:
@@ -127,15 +135,20 @@ jobs:
           covMsg=$(cat go-coverage-message.out)
           covMsg="${covMsg//'%'/'<br>'}"
           covMsg="${covMsg//$'\n'/'<br>'}"
-          covMsg="${covMsg//$'\r'/'<br>'}"          
+          covMsg="${covMsg//$'\r'/'<br>'}"
 
+          echo "threshold=$(cat go-coverage-threshold.out)" >> $GITHUB_OUTPUT
           echo "percentage=$(cat go-coverage-percentage.out)" >> $GITHUB_OUTPUT
           echo "message=$covMsg" >> $GITHUB_OUTPUT
 
   comparison:
+    if: always() && github.actor != 'verlandz-bot'
     runs-on: ubuntu-latest
     needs: [test-coverage-main-branch, test-coverage-your-branch, test-coverage-merged-branch]
     env:
+      THRES_MAIN_BRANCH: ${{ needs.test-coverage-main-branch.outputs.threshold }}
+      THRES_YOUR_BRANCH: ${{ needs.test-coverage-your-branch.outputs.threshold }}
+      THRES_MERGED_BRANCH: ${{ needs.test-coverage-merged-branch.outputs.threshold }}
       COV_MAIN_BRANCH: ${{ needs.test-coverage-main-branch.outputs.percentage }}
       COV_YOUR_BRANCH: ${{ needs.test-coverage-your-branch.outputs.percentage }}
       COV_MERGED_BRANCH: ${{ needs.test-coverage-merged-branch.outputs.percentage }}
@@ -145,6 +158,10 @@ jobs:
         with:
           github-token: ${{ secrets.BOT_PAT }}
           script: |
+            // define
+            let thresMainBranch = parseFloat(${{ env.THRES_MAIN_BRANCH }}); thresMainBranch = thresMainBranch ? thresMainBranch : 0;
+            let thresYourBranch = parseFloat(${{ env.THRES_YOUR_BRANCH }}); thresYourBranch = thresYourBranch ? thresYourBranch : 0;
+            let thresMergedBranch = parseFloat(${{ env.THRES_MERGED_BRANCH }}); thresMergedBranch = thresMergedBranch ? thresMergedBranch : 0;
             let covMainBranch = parseFloat(${{ env.COV_MAIN_BRANCH }}); covMainBranch = covMainBranch ? covMainBranch : 0;
             let covYourBranch = parseFloat(${{ env.COV_YOUR_BRANCH }}); covYourBranch = covYourBranch ? covYourBranch : 0;
             let covMergedBranch = parseFloat(${{ env.COV_MERGED_BRANCH }}); covMergedBranch = covMergedBranch ? covMergedBranch : 0;
@@ -153,6 +170,7 @@ jobs:
             let fixedDigits = 2;
             let diffYourToMain = (covYourBranch - covMainBranch).toFixed(fixedDigits);
             let diffMergedToMain = (covMergedBranch - covMainBranch).toFixed(fixedDigits);
+            let diffMergedToThres = (covMergedBranch - thresMergedBranch).toFixed(fixedDigits);
 
             // diff color
             let diffYourToMainColor; 
@@ -167,23 +185,27 @@ jobs:
 
             // status
             let statusIcon;
-            if (diffMergedToMain >= 0) statusIcon = ":white_check_mark:"
+            if (diffMergedToThres >= 0) statusIcon = ":white_check_mark:"
             else statusIcon = ":x:"
 
             // body
             let body = ` 
               ### Code Coverage ${statusIcon}
 
-              Branch | Coverage | Progress
-              --- | --- | --- |
-              \`main\` | ${covMainBranch}% | - |
-              \`your\` | ${covYourBranch}% | $\\textcolor{ ${diffYourToMainColor} }{\\text{ ${diffYourToMain}\\\\% }}$ |
-              \`merged\` | ${covMergedBranch}% | $\\textcolor{ ${diffMergedToMainColor} }{\\text{ ${diffMergedToMain}\\\\% }}$ |
+              Branch | Threshold | Coverage | Diff to \`main\`
+              --- | --- | --- | --- |
+              \`main\` | ${thresMainBranch}% | ${covMainBranch}% | - |
+              \`your\` | ${thresYourBranch}% | ${covYourBranch}% | $\\textcolor{ ${diffYourToMainColor} }{\\text{ ${diffYourToMain}\\\\% }}$ |
+              \`merged\` | ${thresMergedBranch}% | ${covMergedBranch}% | $\\textcolor{ ${diffMergedToMainColor} }{\\text{ ${diffMergedToMain}\\\\% }}$ |
 
-              > __Note__
-              > - PASS / NOT depends on \`merged\` coverage
-              > - \`your\` coverage exist to give visibility of your progress with last HEAD
-              > -  The threshold is **60%**
+              <details>
+              <summary>Note</summary>
+
+              - PASS :white_check_mark: / NOT PASS :x: , depends on \`merged\` coverage
+              - \`merged\` is merge between \`main\` and \`your\`
+              - Please see directly from actions result for details of errors if any
+
+              </details>
             `
 
             github.rest.issues.createComment({
