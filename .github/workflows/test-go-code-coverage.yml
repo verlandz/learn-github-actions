@@ -8,6 +8,7 @@
 # NOTE:
 #   - This job won't work properly if `make test` and supporting scripts not well implemented
 #   - The verdict based on merged pull-request, so don't worry about failing in `main`
+#   - This must be run every time there's PR, not only based on "paths: '**.go'"
 name: Test | GO Code Coverage
 
 on:
