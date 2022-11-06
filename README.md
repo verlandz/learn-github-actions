@@ -14,7 +14,7 @@
     - Invite the bot into organization
     - Authorize the PAT with organization
     - Add this step in the beginning of the steps for needed job(s).
-    This is HTTP style. You can also use SSH style (need PoC).
+    This is HTTP style. You can also use SSH style.
         ```
         - name: Configure private git
           env:
