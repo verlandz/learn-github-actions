@@ -1,6 +1,6 @@
 ---
-# [Test | GO Code Coverage]
-#   test your GO coverage files using "go test" to
+# [Code Coverage | Go Files]
+#   test your Go coverage files using "go test" to
 #   - "main" branch
 #   - "your" branch
 #   - merged("main"+"your") branch
@@ -9,7 +9,7 @@
 #   - This job won't work properly if `make test` and supporting scripts not well implemented
 #   - The verdict based on merged pull-request, so don't worry about failing in `main`
 #   - This must be run every time there's PR, not only based on "paths: '**.go'"
-name: Test | GO Code Coverage
+name: Code Coverage | Go Files
 
 on:
   pull_request:

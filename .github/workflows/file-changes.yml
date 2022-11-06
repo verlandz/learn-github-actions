@@ -1,7 +1,7 @@
 ---
 # [File Changes]
 #   get file changes between "main" and "your" branch
-name: File changes
+name: File Changes
 
 on:
   pull_request:
