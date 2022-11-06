@@ -2,8 +2,12 @@
 
 file_name=$1
 threshold=60.0
+coverage_threshold_output=go-coverage-threshold.out
 coverage_percentage_output=go-coverage-percentage.out
 coverage_message_output=go-coverage-message.out
+
+# print to threshold output file
+echo $threshold > ./$coverage_threshold_output
 
 echo
 echo "============================================="
@@ -14,6 +18,7 @@ echo
 failed_test=$(grep -a "^FAIL.*\t" --text "$file_name")
 failed_test_count=$(echo "$failed_test" | wc -l | xargs)
 
+# print to percentage and message output file
 printOutput () {
     echo "$1" > ./$coverage_percentage_output
     echo "$2" > ./$coverage_message_output
