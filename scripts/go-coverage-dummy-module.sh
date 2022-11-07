@@ -3,6 +3,8 @@
 # var
 old_ifs=$IFS
 threshold=60.0
+start_date="$(date -I seconds)"
+start_date_seconds="$(date +%s)"
 target_path="dummy-module/"
 coverage_dummy_module_data_output=go-coverage-dummy-module-data.out
 coverage_dummy_module_result_output=go-coverage-dummy-module-result.out
@@ -56,11 +58,17 @@ do
     echo -e "$uniq_module\\t$coverage%\\t$res" >> ./$coverage_dummy_module_result_output
 done
 
+end_date="$(date -I seconds)"
+end_date_seconds="$(date +%s)"
+elapsed_seconds="$(($end_date_seconds-$start_date_seconds))"
+
 echo
 echo "============================================="
 echo "          GO TEST COVERAGE REPORT            "
 echo "============================================="
-echo -e "Date:\t\t$(date)"
+echo -e "Start Date:\t$start_date"
+echo -e "End Date:\t$end_date"
+echo -e "Elapsed:\t$elapsed_seconds s"
 echo -e "Go Version:\t$(go version)"
 echo -e "Target Path:\t$target_path"
 echo -e "Threshold:\t$threshold%"
