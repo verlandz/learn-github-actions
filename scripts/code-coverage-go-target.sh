@@ -41,7 +41,6 @@ do
     res="PASS"
     coverage=0.00
     
-    # coverage=$(go test -race -covermode=atomic "$PWD/$target_path$uniq_module" 2>&1 | grep "coverage:" | awk '{print $(NF-2)}' | tr -d "%")
     if files=$(go test -race -covermode=atomic "$PWD/$target_path$uniq_module" 2>&1)
     then
         echo "OK"
