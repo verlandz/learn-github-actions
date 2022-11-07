@@ -6,16 +6,16 @@ threshold=60.0
 start_date="$(date -I seconds)"
 start_date_seconds="$(date +%s)"
 target_path="dummy-module/"
-target_data_output=code-coverage-go-target-data.out
-target_result_output=code-coverage-go-target-result.out
-target_threshold_output=code-coverage-go-target-threshold.out
+data_output=code-coverage-go-target-data.out
+result_output=code-coverage-go-target-result.out
+threshold_output=code-coverage-go-target-threshold.out
 
 # clear the output
-cat /dev/null > ./$target_data_output
-cat /dev/null > ./$target_result_output
+cat /dev/null > ./$data_output
+cat /dev/null > ./$result_output
 
 # print to threshold output file
-echo $threshold > ./$target_threshold_output
+echo $threshold > ./$threshold_output
 
 git fetch origin main
 files=$(git diff --name-status origin/main | grep $target_path | awk '$1 != "D" {print $NF}')
@@ -28,14 +28,14 @@ do
     read -ra arr <<< "$file"
     if [ "${#arr[@]}" -gt "2" ]
     then
-        echo "${arr[1]}" >> $target_data_output
+        echo "${arr[1]}" >> $data_output
     fi
 done
 
 IFS=$old_ifs # revert IFS
 is_pass=true
 
-uniq_modules=$(cat $target_data_output | sort | uniq)
+uniq_modules=$(cat $data_output | sort | uniq)
 for uniq_module in $uniq_modules
 do
     res="PASS"
@@ -55,7 +55,7 @@ do
         is_pass=false
     fi
 
-    echo -e "$uniq_module\\t$coverage%\\t$res" >> ./$target_result_output
+    echo -e "$uniq_module\\t$coverage%\\t$res" >> ./$result_output
 done
 
 end_date="$(date -I seconds)"
@@ -72,13 +72,13 @@ echo -e "Elapsed:\t$elapsed_seconds s"
 echo -e "Go Version:\t$(go version)"
 echo -e "Target Path:\t$target_path"
 echo -e "Threshold:\t$threshold%"
-echo -e "Data Output:\t$target_data_output"
-echo -e "Result Output:\t$target_result_output"
+echo -e "Data Output:\t$data_output"
+echo -e "Result Output:\t$result_output"
 echo
 echo "============================================="
 echo -e "Module\tCov\tStatus"
 echo "============================================="
-cat $target_result_output
+cat $result_output
 echo
 
 if $is_pass
