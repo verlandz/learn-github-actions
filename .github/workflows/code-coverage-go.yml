@@ -1,0 +1,193 @@
+---
+# [Code Coverage | Go]
+#   do code coverage to your Go files using "go test" to
+#   - base, the branch you are merging TO ("main" branch)
+#   - head, the branch you are merging FROM ("your" branch)
+#   - event, reference / SHA for THAT EVENT ("main"+"your" branch)
+name: Code Coverage | Go
+
+on:
+  pull_request:
+    branches: main
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}-${{ github.actor }}
+  cancel-in-progress: true
+
+jobs:
+  code-coverage-base:
+    runs-on: ubuntu-latest
+    if: github.actor != 'verlandz-bot'
+    outputs:
+      threshold: ${{ steps.create-coverage-output.outputs.threshold }}
+      percentage: ${{ steps.create-coverage-output.outputs.percentage }}
+      message: ${{ steps.create-coverage-output.outputs.message }}
+    steps:
+      - name: Setup Golang
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18.x
+
+      - name: Checkout base branch
+        uses: actions/checkout@v3
+        with:
+          ref: main
+          token: ${{ secrets.BOT_PAT }}
+
+      - name: Test code coverage
+        id: test-code-coverage
+        run: make test
+
+      - name: Create coverage output
+        id: create-coverage-output
+        if: always()
+        run: |
+          covMsg=$(cat code-coverage-go-message.out)
+          covMsg="${covMsg//$'\n'/'<br>'}"
+          covMsg="${covMsg//$'\r'/'<br>'}"
+
+          echo "threshold=$(cat code-coverage-go-threshold.out)" >> $GITHUB_OUTPUT
+          echo "percentage=$(cat code-coverage-go-percentage.out)" >> $GITHUB_OUTPUT
+          echo "message=$covMsg" >> $GITHUB_OUTPUT
+
+  code-coverage-head:
+    runs-on: ubuntu-latest
+    if: github.actor != 'verlandz-bot'
+    outputs:
+      threshold: ${{ steps.create-coverage-output.outputs.threshold }}
+      percentage: ${{ steps.create-coverage-output.outputs.percentage }}
+      message: ${{ steps.create-coverage-output.outputs.message }}
+    steps:
+      - name: Install Golang
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18.x
+
+      - name: Checkout head branch
+        uses: actions/checkout@v3
+        with:
+          ref: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
+          token: ${{ secrets.BOT_PAT }}
+
+      - name: Test code coverage
+        id: test-code-coverage
+        run: make test
+
+      - name: Create coverage output
+        id: create-coverage-output
+        if: always()
+        run: |
+          covMsg=$(cat code-coverage-go-message.out)
+          covMsg="${covMsg//$'\n'/'<br>'}"
+          covMsg="${covMsg//$'\r'/'<br>'}"
+
+          echo "threshold=$(cat code-coverage-go-threshold.out)" >> $GITHUB_OUTPUT
+          echo "percentage=$(cat code-coverage-go-percentage.out)" >> $GITHUB_OUTPUT
+          echo "message=$covMsg" >> $GITHUB_OUTPUT
+
+  code-coverage-event:
+    runs-on: ubuntu-latest
+    if: github.actor != 'verlandz-bot'
+    outputs:
+      threshold: ${{ steps.create-coverage-output.outputs.threshold }}
+      percentage: ${{ steps.create-coverage-output.outputs.percentage }}
+      message: ${{ steps.create-coverage-output.outputs.message }}
+    steps:
+      - name: Install Golang
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.18.x
+
+      - name: Checkout event branch
+        uses: actions/checkout@v3
+        with:
+          token: ${{ secrets.BOT_PAT }}
+
+      - name: Test code coverage
+        id: test-code-coverage
+        run: make test
+
+      - name: Create coverage output
+        id: create-coverage-output
+        if: always()
+        run: |
+          covMsg=$(cat code-coverage-go-message.out)
+          covMsg="${covMsg//$'\n'/'<br>'}"
+          covMsg="${covMsg//$'\r'/'<br>'}"
+
+          echo "threshold=$(cat code-coverage-go-threshold.out)" >> $GITHUB_OUTPUT
+          echo "percentage=$(cat code-coverage-go-percentage.out)" >> $GITHUB_OUTPUT
+          echo "message=$covMsg" >> $GITHUB_OUTPUT
+
+  comparison:
+    runs-on: ubuntu-latest
+    needs: [code-coverage-base, code-coverage-head, code-coverage-event]
+    if: always() && github.actor != 'verlandz-bot'
+    env:
+      THRES_BASE_BRANCH: ${{ needs.code-coverage-base.outputs.threshold }}
+      THRES_HEAD_BRANCH: ${{ needs.code-coverage-head.outputs.threshold }}
+      THRES_EVENT_BRANCH: ${{ needs.code-coverage-event.outputs.threshold }}
+      COV_BASE_BRANCH: ${{ needs.code-coverage-base.outputs.percentage }}
+      COV_HEAD_BRANCH: ${{ needs.code-coverage-head.outputs.percentage }}
+      COV_EVENT_BRANCH: ${{ needs.code-coverage-event.outputs.percentage }}
+    steps:
+      - name: Comparison
+        uses: actions/github-script@v6
+        with:
+          github-token: ${{ secrets.BOT_PAT }}
+          script: |
+            // define
+            let thresBaseBranch = parseFloat(${{ env.THRES_BASE_BRANCH }}); thresBaseBranch = thresBaseBranch ? thresBaseBranch : 0;
+            let thresHeadBranch = parseFloat(${{ env.THRES_HEAD_BRANCH }}); thresHeadBranch = thresHeadBranch ? thresHeadBranch : 0;
+            let thresEventBranch = parseFloat(${{ env.THRES_EVENT_BRANCH }}); thresEventBranch = thresEventBranch ? thresEventBranch : 0;
+            let covBaseBranch = parseFloat(${{ env.COV_BASE_BRANCH }}); covBaseBranch = covBaseBranch ? covBaseBranch : 0;
+            let covHeadBranch = parseFloat(${{ env.COV_HEAD_BRANCH }}); covHeadBranch = covHeadBranch ? covHeadBranch : 0;
+            let covEventBranch = parseFloat(${{ env.COV_EVENT_BRANCH }}); covEventBranch = covEventBranch ? covEventBranch : 0;
+
+            // diff
+            let fixedDigits = 2;
+            let diffHeadToBase = (covHeadBranch - covBaseBranch).toFixed(fixedDigits);
+            let diffEventToBase = (covEventBranch - covBaseBranch).toFixed(fixedDigits);
+            let diffEventToThres = (covEventBranch - thresEventBranch).toFixed(fixedDigits);
+
+            // diff color
+            let diffHeadToBaseColor; 
+            if (diffHeadToBase > 0) diffHeadToBaseColor = "green";
+            else if (diffHeadToBase < 0) diffHeadToBaseColor = "red";
+            else diffHeadToBaseColor = "gray";
+
+            let diffEventToBaseColor;
+            if (diffEventToBase > 0) diffEventToBaseColor = "green";
+            else if (diffEventToBase < 0) diffEventToBaseColor = "red";
+            else diffEventToBaseColor = "gray";
+
+            // status
+            let statusIcon;
+            if (diffEventToThres >= 0) statusIcon = ":white_check_mark:"
+            else statusIcon = ":x:"
+
+            // body
+            let body = ` 
+              ### Code Coverage ${statusIcon}
+
+              Branch | Threshold | Coverage | Diff to \`base\`
+              --- | --- | --- | --- |
+              \`base:main\` | ${thresBaseBranch}% | ${covBaseBranch}% | - |
+              \`head:your\` | ${thresHeadBranch}% | ${covHeadBranch}% | $\\textcolor{ ${diffHeadToBaseColor} }{\\text{ ${diffHeadToBase}\\\\% }}$ |
+              \`event:merged\` | ${thresEventBranch}% | ${covEventBranch}% | $\\textcolor{ ${diffEventToBaseColor} }{\\text{ ${diffEventToBase}\\\\% }}$ |
+
+              <details>
+              <summary>Note</summary>
+
+              - <b>PASS :white_check_mark: / NOT PASS :x:</b> depends on `event` to `base` coverage
+              - For detail logs please see directly in the **Actions**
+
+              </details>
+            `
+
+            github.rest.issues.createComment({
+              issue_number: context.issue.number,
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              body: body
+            })

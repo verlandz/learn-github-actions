@@ -13,4 +13,8 @@ run:
 
 # Test the unitest
 test:
-	@bash ./scripts/go-coverage.sh
+	@bash ./scripts/code-coverage-go.sh
+
+# Test the unitest for specific target
+test-target:
+	@bash ./scripts/code-coverage-go-target.sh

@@ -1,23 +1,21 @@
 package dummy_go
 
-import (
-	"testing"
-)
+import "testing"
 
-func Test_getB(t *testing.T) {
+func Test_gg1(t *testing.T) {
 	tests := []struct {
 		name string
-		want int
+		want string
 	}{
 		{
 			name: "sample",
-			want: 2,
+			want: "wp",
 		},
 	}
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			if got := getB(); got != tt.want {
-				t.Errorf("getB() = %v, want %v", got, tt.want)
+			if got := gg1(); got != tt.want {
+				t.Errorf("gg1() = %v, want %v", got, tt.want)
 			}
 		})
 	}
