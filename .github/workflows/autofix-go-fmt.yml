@@ -1,6 +1,6 @@
 ---
 # [Autofix | Go Formatter]
-#   autofix your GO format using "go fmt"
+#   autofix your Go files using "go fmt"
 #   to your changes files.
 name: Autofix | Go Formatter
 

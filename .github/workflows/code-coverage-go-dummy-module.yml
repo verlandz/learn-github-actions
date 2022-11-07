@@ -1,6 +1,7 @@
 ---
 # [Code Coverage | Go Dummy Module]
-#   test your Go coverage files using "go test" under "dummy-module/" folder.
+#   do code coverage to your Go files using "go test"
+#   under "dummy-module/" folder.
 name: Code Coverage | Go Dummy Module
 on:
   pull_request:

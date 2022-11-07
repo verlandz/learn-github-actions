@@ -1,6 +1,6 @@
 ---
 # [Autofix | INI Formatter]
-#   autofix your INI format using "prettier-plugin-ini" package
+#   autofix your INI files using "prettier-plugin-ini" package
 #   to your changes files.
 name: Autofix | INI Formatter
 
