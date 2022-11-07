@@ -179,7 +179,7 @@ jobs:
               <details>
               <summary>Note</summary>
 
-              - <b>PASS :white_check_mark: / NOT PASS :x:</b> depends on `event` to `base` coverage
+              - <b>PASS :white_check_mark: / NOT PASS :x:</b> depends on \`event\` to \`base\` coverage
               - For detail logs please see directly in the **Actions**
 
               </details>
