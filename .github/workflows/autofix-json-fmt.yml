@@ -26,8 +26,8 @@ jobs:
         with:
           token: ${{ secrets.BOT_PAT }}
 
-      - name: Execute jq
-        id: execute
+      - name: Formatter
+        id: formatter
         run: |
           git fetch origin main
 
@@ -47,7 +47,7 @@ jobs:
               errMsg="${errMsg//$'\n'/'<br>'}"
               errMsg="${errMsg//$'\r'/'<br>'}"
 
-              echo "msg=$errMsg" >> $GITHUB_OUTPUT
+              echo "err_msg=$errMsg" >> $GITHUB_OUTPUT
               exit 1
             fi
           done
@@ -62,7 +62,7 @@ jobs:
             ### JSON Formatter :x:
             <details>
               <summary>Details</summary>
-              <pre>${{ steps.execute.outputs.msg }}</pre>
+              <pre>${{ steps.formatter.outputs.err_msg }}</pre>
             </details>
 
       - name: Commit and push

@@ -18,7 +18,7 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor != 'verlandz-bot'
     steps:
-      - name: Install Node18
+      - name: Setup Node
         uses: actions/setup-node@v3
         with:
           node-version: '18'
@@ -31,8 +31,8 @@ jobs:
         with:
           token: ${{ secrets.BOT_PAT }}
 
-      - name: Execute Prettier
-        id: execute
+      - name: Formatter
+        id: formatter
         run: |
           git fetch origin main
 
@@ -50,7 +50,7 @@ jobs:
               errMsg="${errMsg//$'\n'/'<br>'}"
               errMsg="${errMsg//$'\r'/'<br>'}"
 
-              echo "msg=$errMsg" >> $GITHUB_OUTPUT
+              echo "err_msg=$errMsg" >> $GITHUB_OUTPUT
               exit 1
             fi
           done
@@ -65,7 +65,7 @@ jobs:
             ### INI Formatter :x:
             <details>
               <summary>Details</summary>
-              <pre>${{ steps.execute.outputs.msg }}</pre>
+              <pre>${{ steps.formatter.outputs.err_msg }}</pre>
             </details>
 
       - name: Commit and push
