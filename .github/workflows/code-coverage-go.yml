@@ -2,7 +2,7 @@
 # [Code Coverage | Go]
 #   do code coverage to your Go files using "go test" to
 #   - base, the branch you are merging TO ("main" branch)
-#   - head, the branch you are merging FROM ("your" branch) 
+#   - head, the branch you are merging FROM ("your" branch)
 #   - event, reference / SHA for THAT EVENT ("main"+"your" branch)
 name: Code Coverage | Go
 
