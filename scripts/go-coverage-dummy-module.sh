@@ -4,12 +4,12 @@
 old_ifs=$IFS
 threshold=60.0
 target_path="dummy-module/"
-coverage_dummy_data_module_output=go-coverage-dummy-data-module.out
+coverage_dummy_module_data_output=go-coverage-dummy-module-data.out
 coverage_dummy_module_result_output=go-coverage-dummy-module-result.out
 coverage_dummy_module_threshold_output=go-coverage-dummy-module-threshold.out
 
 # clear the output
-cat /dev/null > ./$coverage_dummy_data_module_output
+cat /dev/null > ./$coverage_dummy_module_data_output
 cat /dev/null > ./$coverage_dummy_module_result_output
 
 # print to threshold output file
@@ -26,14 +26,14 @@ do
     read -ra arr <<< "$file"
     if [ "${#arr[@]}" -gt "2" ]
     then
-        echo "${arr[1]}" >> $coverage_dummy_data_module_output
+        echo "${arr[1]}" >> $coverage_dummy_module_data_output
     fi
 done
 
 IFS=$old_ifs # revert IFS
 is_pass=true
 
-uniq_modules=$(cat $coverage_dummy_data_module_output | sort | uniq)
+uniq_modules=$(cat $coverage_dummy_module_data_output | sort | uniq)
 for uniq_module in $uniq_modules
 do
     res="PASS"
@@ -64,7 +64,7 @@ echo -e "Date:\t\t$(date)"
 echo -e "Go Version:\t$(go version)"
 echo -e "Target Path:\t$target_path"
 echo -e "Threshold:\t$threshold%"
-echo -e "Data Output:\t$coverage_dummy_data_module_output"
+echo -e "Data Output:\t$coverage_dummy_module_data_output"
 echo -e "Result Output:\t$coverage_dummy_module_result_output"
 echo
 echo "============================================="
