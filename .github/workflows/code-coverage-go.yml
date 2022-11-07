@@ -202,7 +202,7 @@ jobs:
               <details>
               <summary>Note</summary>
 
-              - PASS :white_check_mark: / NOT PASS :x: , depends on \`merged\` coverage
+              - <b>PASS :white_check_mark: / NOT PASS :x:</b>, depends on \`merged\` coverage
               - \`merged\` is merge between \`main\` and \`your\`
               - Please see directly from actions result for details of errors if any
 
