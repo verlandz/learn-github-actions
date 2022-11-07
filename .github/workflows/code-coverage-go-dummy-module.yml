@@ -27,8 +27,8 @@ jobs:
         with:
           token: ${{ secrets.BOT_PAT }}
 
-      - name: Code coverage
-        id: code-coverage
+      - name: Test code coverage
+        id: test-code-coverage
         run: make test-dummy-module
 
       - name: Create coverage output
@@ -60,7 +60,7 @@ jobs:
 
             // status
             let statusIcon;
-            if ("${{ steps.code-coverage.conclusion }}" == "success") {
+            if ("${{ steps.test-code-coverage.conclusion }}" == "success") {
               statusIcon = ":white_check_mark:"
             } else {
               statusIcon = ":x:"
