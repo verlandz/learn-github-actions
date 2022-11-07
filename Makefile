@@ -15,6 +15,6 @@ run:
 test:
 	@bash ./scripts/go-coverage.sh
 
-# Test the unitest for dummy-module
-test-dummy-module:
-	@bash ./scripts/go-coverage-dummy-module.sh
+# Test the unitest for specific target
+test-target:
+	@bash ./scripts/code-coverage-go-target.sh
