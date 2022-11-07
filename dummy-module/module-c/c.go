@@ -1,5 +1,8 @@
 package dummy_go
 
+import "fmt"
+
 func gg() string {
-	return "wpx"
+	fmt.Println("ll")
+	return "wp"
 }

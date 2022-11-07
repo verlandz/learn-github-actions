@@ -39,8 +39,19 @@ uniq_modules=$(cat $data_output | sort | uniq)
 for uniq_module in $uniq_modules
 do
     res="PASS"
-    coverage=$(go test -race -covermode=atomic "$PWD/$target_path$uniq_module" | grep "coverage:" | awk '{print $(NF-2)}' | tr -d "%")
-
+    coverage=0.00
+    
+    # coverage=$(go test -race -covermode=atomic "$PWD/$target_path$uniq_module" 2>&1 | grep "coverage:" | awk '{print $(NF-2)}' | tr -d "%")
+    if files=$(go test -race -covermode=atomic "$PWD/$target_path$uniq_module" 2>&1)
+    then
+        echo "OK"
+        echo $files > files.tmp
+        coverage=$(cat files.tmp | grep "coverage:" | awk '{print $(NF-2)}' | tr -d "%")
+        rm files.tmp
+    else
+        echo "FAILED"
+    fi
+    
     # check if coverage is below 0 or not valid value
     if [[ $(echo "$coverage > 0" | bc) != 1 ]]
     then
