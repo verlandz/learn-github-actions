@@ -14,3 +14,7 @@ run:
 # Test the unitest
 test:
 	@bash ./scripts/go-coverage.sh
+
+# Test the unitest for dummy-module
+test-dummy-module:
+	@bash ./scripts/go-coverage-dummy-module.sh
