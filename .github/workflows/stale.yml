@@ -6,13 +6,13 @@ name: Stale
 
 on:
   schedule:
-    - cron: '0 0 * * *'
+    - cron: '0 */3 * * *'
 
 jobs:
   label-or-close:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/stale@v5
+      - uses: actions/stale@v6
         with:
           repo-token: ${{ secrets.BOT_PAT }}
           stale-issue-message: 'This issue is stale because it has been open 14 days with no activity. Remove stale label or comment or this will be closed in 7 days'
@@ -23,3 +23,5 @@ jobs:
           exempt-pr-labels: 'work-in-progress'
           days-before-stale: 14
           days-before-close: 7
+          ascending: true
+          operations-per-run: 100
