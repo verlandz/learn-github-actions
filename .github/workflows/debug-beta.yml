@@ -1,0 +1,26 @@
+---
+name: Debug (Beta)
+
+on:
+  pull_request:
+    branches:
+      - main
+      - beta
+      - staging
+    paths:
+      - '**.yaml'
+      - '**.yml'
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}-${{ github.actor }}
+  cancel-in-progress: true
+
+jobs:
+  formatter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug Print
+        run: |
+          echo "github.event.pull_request.head.ref = ${{ github.event.pull_request.head.ref }}"
+          echo "github.ref = ${{ github.head_ref }}"
+          echo "github.ref = ${{ github.ref }}"
