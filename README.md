@@ -23,5 +23,3 @@
           run: git config --global url."https://$BOT_NAME:$BOT_PAT@github.com".insteadOf "https://github.com"
         ```
 - Please readjust according to your needs
-
-hello
