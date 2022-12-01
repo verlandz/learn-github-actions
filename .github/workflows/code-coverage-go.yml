@@ -5,7 +5,7 @@
 #   - head, the branch you are merging FROM ("your" branch)
 #   - merge, reference / SHA for THAT EVENT ("main"+"your" branch)
 #   then compare it.
-name: Code Coverage | Go (Beta)
+name: Code Coverage | Go
 
 on:
   pull_request:

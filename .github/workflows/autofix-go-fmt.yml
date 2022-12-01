@@ -1,16 +1,14 @@
 ---
-# [Autofix | YAML/YML Formatter]
-#   autofix your YAML/YML file changes using "prettier".
-name: Autofix | YAML/YML Formatter (Beta)
+# [Autofix | Go Formatter]
+#   autofix your Go file changes using "go fmt".
+name: Autofix | Go Formatter
 
 on:
   pull_request:
     branches:
       - main
       - beta
-    paths:
-      - '**.yaml'
-      - '**.yml'
+    paths: '**.go'
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}-${{ github.actor }}
@@ -21,13 +19,10 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor != 'verlandz-bot'
     steps:
-      - name: Setup Node
-        uses: actions/setup-node@v3
+      - name: Setup Golang
+        uses: actions/setup-go@v2
         with:
-          node-version: '18'
-
-      - name: Install prettier
-        run: npm install --save-dev --save-exact prettier
+          go-version: 1.18.x
 
       - name: Checkout branch
         uses: actions/checkout@v3
@@ -39,14 +34,11 @@ jobs:
         run: |
           git fetch origin ${{ github.base_ref }}
 
-          prettier_path=.github/workflows/supports/.prettierrc
-          npx prettier --find-config-path $prettier_path
-
-          files=$(git diff --name-status origin/${{ github.base_ref }} | grep -E ".yaml$|.yml$" | awk '$1 != "D" {print $NF}')
+          files=$(git diff --name-status origin/${{ github.base_ref }} | grep '.go$' | awk '$1 != "D" {print $NF}')
           for file in $files
           do
             echo "Formatting $file"
-            if res=$(npx prettier --config $prettier_path --write $file 2>&1)
+            if res=$(go fmt $file 2>&1)
             then
               echo "OK"
             else
@@ -68,7 +60,7 @@ jobs:
           token: ${{ secrets.BOT_PAT }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            ### YAML/YML Formatter :x:
+            ### GO Formatter :x:
             <details>
               <summary>Details</summary>
               <pre>${{ steps.formatter.outputs.err_msg }}</pre>
@@ -80,4 +72,4 @@ jobs:
           branch: ${{ github.head_ref }}
           commit_user_name: 'verlandz-bot'
           commit_user_email: 'verlandz-bot@users.noreply.github.com'
-          commit_message: '[BOT] Autofix | YAML/YML Formatter'
+          commit_message: '[BOT] Autofix | Go Formatter'

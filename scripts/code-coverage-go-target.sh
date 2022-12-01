@@ -24,7 +24,12 @@ cat /dev/null > ./$result_output
 # print to threshold output file
 echo $threshold > ./$threshold_output
 
-git fetch origin $base_branch
+if !(res=$(git fetch origin $base_branch 2>&1))
+then
+    echo "Unknown base_branch: $base_branch !"
+    exit 1
+fi
+
 files=$(git diff --name-status origin/$base_branch | grep $target_path | awk '$1 != "D" {print $NF}')
 for file in $files
 do
