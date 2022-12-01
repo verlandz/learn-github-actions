@@ -6,7 +6,10 @@ name: Autofix | INI Formatter
 
 on:
   pull_request:
-    branches: main
+    branches:
+      - main
+      - beta
+      - staging
     paths: '**.ini'
 
 concurrency:

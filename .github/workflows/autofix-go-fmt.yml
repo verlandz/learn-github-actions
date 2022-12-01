@@ -6,7 +6,10 @@ name: Autofix | Go Formatter
 
 on:
   pull_request:
-    branches: main
+    branches:
+      - main
+      - beta
+      - staging
     paths: '**.go'
 
 concurrency:

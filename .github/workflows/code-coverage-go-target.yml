@@ -5,7 +5,10 @@
 name: Code Coverage | Go Target
 on:
   pull_request:
-    branches: main
+    branches:
+      - main
+      - beta
+      - staging
     paths: 'dummy-module/**'
 
 concurrency:
