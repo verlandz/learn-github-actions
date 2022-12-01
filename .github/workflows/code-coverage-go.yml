@@ -4,7 +4,7 @@
 #   - base, the branch you are merging TO ("main" branch)
 #   - head, the branch you are merging FROM ("your" branch)
 #   - event, reference / SHA for THAT EVENT ("main"+"your" branch)
-name: Code Coverage | Go
+name: Code Coverage | Go (Beta)
 
 on:
   pull_request:

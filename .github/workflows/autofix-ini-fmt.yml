@@ -2,7 +2,7 @@
 # [Autofix | INI Formatter]
 #   autofix your INI files using "prettier-plugin-ini" package
 #   to your changes files.
-name: Autofix | INI Formatter
+name: Autofix | INI Formatter (Beta)
 
 on:
   pull_request:

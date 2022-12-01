@@ -2,7 +2,7 @@
 # [Autofix | JSON Formatter]
 #   autofix your JSON files using "jq"
 #   to your changes files.
-name: Autofix | JSON Formatter
+name: Autofix | JSON Formatter (Beta)
 
 on:
   pull_request:

@@ -2,7 +2,7 @@
 # [Autofix | Go Formatter]
 #   autofix your Go files using "go fmt"
 #   to your changes files.
-name: Autofix | Go Formatter
+name: Autofix | Go Formatter (Beta)
 
 on:
   pull_request:

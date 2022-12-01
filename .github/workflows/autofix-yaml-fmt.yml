@@ -2,7 +2,7 @@
 # [Autofix | YAML/YML Formatter]
 #   autofix your YAML/YML files using "prettier"
 #   to your changes files.
-name: Autofix | YAML/YML Formatter
+name: Autofix | YAML/YML Formatter (Beta)
 
 on:
   pull_request:
