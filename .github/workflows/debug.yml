@@ -14,12 +14,12 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor != 'verlandz-bot'
     steps:
-      - name: Install bc
-        run: apt-get install bc
+      # - name: Install bc
+      #   run: apt-get install bc
 
       - name: DEBUG
         run: |
           lsb_release -a
           bc -v
-          echo "85 >= 50" | bc 
-          echo "85 < 30" |bc -l
+          echo "60 >= 200" | bc 
+          echo "60 < 200" | bc -l
