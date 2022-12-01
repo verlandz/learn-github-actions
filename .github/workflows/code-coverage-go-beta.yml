@@ -11,7 +11,6 @@ on:
     branches:
       - main
       - beta
-      - staging
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}-${{ github.actor }}
