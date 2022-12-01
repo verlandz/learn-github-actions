@@ -2,7 +2,7 @@
 # [Code Coverage | Go Target]
 #   do code coverage to your Go files using "go test"
 #   under "dummy-module/" folder.
-name: Code Coverage | Go Target (Beta)
+name: Code Coverage | Go Target
 on:
   pull_request:
     branches:
