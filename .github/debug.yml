@@ -1,0 +1,25 @@
+---
+# DEBUG
+name: DEBUG
+on:
+  pull_request:
+    branches: main
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}-${{ github.actor }}
+  cancel-in-progress: true
+
+jobs:
+  code-coverage:
+    runs-on: ubuntu-latest
+    if: github.actor != 'verlandz-bot'
+    steps:
+      - name: Install bc
+        run: apt-get install bc
+
+      - name: DEBUG
+        run: |
+          lsb_release -a
+          bc -v
+          echo "85 >= 50" | bc 
+          echo "85 < 30" |bc -l
