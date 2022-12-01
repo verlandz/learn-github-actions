@@ -68,7 +68,7 @@ jobs:
       - name: Checkout head branch
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
+          ref: ${{ github.head_ref }}
           token: ${{ secrets.BOT_PAT }}
 
       - name: Test code coverage
