@@ -1,6 +1,6 @@
 ---
 # [File Changes]
-#   get file changes between "base" and "head" branch
+#   get file changes between "base" and "head" branch.
 name: File Changes
 
 on:
