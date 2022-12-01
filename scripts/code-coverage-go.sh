@@ -2,7 +2,7 @@
 
 # var
 threshold=60.0
-start_date="$(date -I seconds)"
+start_date="asdfdsf"
 start_date_seconds="$(date +%s)"
 profile_output=code-coverage-go-profile.out
 data_output=code-coverage-go-data.out
