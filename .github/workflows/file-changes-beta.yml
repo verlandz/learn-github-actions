@@ -1,6 +1,6 @@
 ---
 # [File Changes]
-#   get file changes between "main" and "your" branch
+#   get file changes between "base" and "head" branch
 name: File Changes (Beta)
 
 on:
@@ -26,15 +26,15 @@ jobs:
       - name: Get file changes
         id: get-file-changes
         run: |
-          git fetch origin main
+          git fetch origin ${{ github.base_ref }}
 
-          diffFiles=$(git diff --name-status origin/main)
+          diffFiles=$(git diff --name-status origin/${{ github.base_ref }})
           diffFiles="${diffFiles//'%'/'<br>'}"
           diffFiles="${diffFiles//$'\n'/'<br>'}"
           diffFiles="${diffFiles//$'\r'/'<br>'}"
           echo "files=$diffFiles" >> $GITHUB_OUTPUT
 
-          diffStats=$(git diff --shortstat origin/main)
+          diffStats=$(git diff --shortstat origin/${{ github.base_ref }})
           echo "stats=$diffStats" >> $GITHUB_OUTPUT
 
       - name: Report failure

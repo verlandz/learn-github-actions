@@ -1,7 +1,6 @@
 ---
 # [Autofix | YAML/YML Formatter]
-#   autofix your YAML/YML files using "prettier"
-#   to your changes files.
+#   autofix your YAML/YML file changes using "prettier".
 name: Autofix | YAML/YML Formatter (Beta)
 
 on:
@@ -38,12 +37,12 @@ jobs:
       - name: Formatter
         id: formatter
         run: |
-          git fetch origin main
+          git fetch origin ${{ github.base_ref }}
 
           prettier_path=.github/workflows/supports/.prettierrc
           npx prettier --find-config-path $prettier_path
 
-          files=$(git diff --name-status origin/main | grep -E ".yaml$|.yml$" | awk '$1 != "D" {print $NF}')
+          files=$(git diff --name-status origin/${{ github.base_ref }} | grep -E ".yaml$|.yml$" | awk '$1 != "D" {print $NF}')
           for file in $files
           do
             echo "Formatting $file"

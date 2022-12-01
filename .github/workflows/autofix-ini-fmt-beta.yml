@@ -1,7 +1,6 @@
 ---
 # [Autofix | INI Formatter]
-#   autofix your INI files using "prettier-plugin-ini" package
-#   to your changes files.
+#   autofix your INI file changes "prettier-plugin-ini" package.
 name: Autofix | INI Formatter (Beta)
 
 on:
@@ -36,9 +35,9 @@ jobs:
       - name: Formatter
         id: formatter
         run: |
-          git fetch origin main
+          git fetch origin ${{ github.base_ref }}
 
-          files=$(git diff --name-status origin/main | grep '.ini$' | awk '$1 != "D" {print $NF}')
+          files=$(git diff --name-status origin/${{ github.base_ref }} | grep '.ini$' | awk '$1 != "D" {print $NF}')
           for file in $files
           do
             echo "Formatting $file"

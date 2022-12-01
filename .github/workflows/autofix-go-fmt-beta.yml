@@ -1,7 +1,6 @@
 ---
 # [Autofix | Go Formatter]
-#   autofix your Go files using "go fmt"
-#   to your changes files.
+#   autofix your Go file changes using "go fmt".
 name: Autofix | Go Formatter (Beta)
 
 on:
@@ -33,9 +32,9 @@ jobs:
       - name: Formatter
         id: formatter
         run: |
-          git fetch origin main
+          git fetch origin ${{ github.base_ref }}
 
-          files=$(git diff --name-status origin/main | grep '.go$' | awk '$1 != "D" {print $NF}')
+          files=$(git diff --name-status origin/${{ github.base_ref }} | grep '.go$' | awk '$1 != "D" {print $NF}')
           for file in $files
           do
             echo "Formatting $file"

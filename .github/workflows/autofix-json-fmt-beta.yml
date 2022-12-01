@@ -1,7 +1,6 @@
 ---
 # [Autofix | JSON Formatter]
-#   autofix your JSON files using "jq"
-#   to your changes files.
+#   autofix your JSON file changes using "jq".
 name: Autofix | JSON Formatter (Beta)
 
 on:
@@ -31,9 +30,9 @@ jobs:
       - name: Formatter
         id: formatter
         run: |
-          git fetch origin main
+          git fetch origin ${{ github.base_ref }}
 
-          files=$(git diff --name-status origin/main | grep ".json$" | awk '$1 != "D" {print $NF}')
+          files=$(git diff --name-status origin/${{ github.base_ref }} | grep ".json$" | awk '$1 != "D" {print $NF}')
           for file in $files
           do
             echo "Formatting $file"
