@@ -1,6 +1,10 @@
----
-doe: 'a deer, a female deer'
-ray: 'a drop of golden sun'
+
+
+---  
+
+
+doe:      "a deer, a female deer"
+ray:  "a drop of golden sun"
 pi: 3.14159
 xmas: true
 french-hens: 3
@@ -10,12 +14,25 @@ calling-birds:
   - louie
   - fr    ed
 xmas-fifth-day:
-  calling-birds: four
-  french-hens: 3
+  calling-birds: four   
+  french-hens: 3 
   golden-rings: 5
   partridges:
     count: 1
-    location: 'a pear tree'
+    location: "a pear tree"
     turtle    -doves: two
-    items: [1, 2, 3, 4, 5]
-    names: ['one', 'two', 'three', 'four']
+    items: [  
+     1,
+          2,
+                    3,
+                        4,
+                        			5 ]
+    names: [ 
+     "one", 
+      "two", 
+     	 "three", 
+      "four" ]
+
+
+
+
