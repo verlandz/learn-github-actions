@@ -16,5 +16,6 @@ test:
 	@bash ./scripts/code-coverage-go.sh
 
 # Test the unitest for specific target
+# required: BASE_BRANCH args
 test-target:
-	@bash ./scripts/code-coverage-go-target.sh
+	@bash ./scripts/code-coverage-go-target.sh $(BASE_BRANCH)
