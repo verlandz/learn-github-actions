@@ -8,7 +8,10 @@ name: Code Coverage | Go
 
 on:
   pull_request:
-    branches: main
+    branches:
+      - main
+      - beta
+      - staging
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}-${{ github.actor }}

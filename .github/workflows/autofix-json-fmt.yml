@@ -6,7 +6,10 @@ name: Autofix | JSON Formatter
 
 on:
   pull_request:
-    branches: main
+    branches:
+      - main
+      - beta
+      - staging
     paths: '**.json'
 
 concurrency:
