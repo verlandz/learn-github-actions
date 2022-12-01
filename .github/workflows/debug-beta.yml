@@ -1,0 +1,40 @@
+---
+name: Debug (Beta)
+
+on:
+  pull_request:
+    branches:
+      - main
+      - beta
+    paths:
+      - '**.yaml'
+      - '**.yml'
+
+concurrency:
+  group: ${{ github.ref }}-${{ github.workflow }}-${{ github.actor }}
+  cancel-in-progress: true
+
+jobs:
+  formatter:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Debug Print
+        run: |
+          echo "BASE"
+          echo "github.event.pull_request.base.ref = ${{ github.event.pull_request.base.ref }}"
+          echo "github.base_ref = ${{ github.base_ref }}"
+          echo "ans = ${{ github.event.pull_request.base.ref || github.base_ref }}"
+          echo ""
+          echo "HEAD"
+          echo "github.event.pull_request.head.ref = ${{ github.event.pull_request.head.ref }}"
+          echo "github.head_ref = ${{ github.head_ref }}"
+          echo "github.ref = ${{ github.ref }}"
+          echo "ans = ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}"
+          echo ""
+          echo "EVENT"
+          echo "github.event = ${{ github.event	}}"
+          echo ""
+          echo "etc"
+          echo "github.workflow = ${{ github.workflow	}}"
+          echo "github.actor = ${{ github.actor	}}"
+          echo ""

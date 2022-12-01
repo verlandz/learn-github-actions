@@ -3,15 +3,15 @@
 #   do code coverage to your Go files using "go test" to
 #   - base, the branch you are merging TO ("main" branch)
 #   - head, the branch you are merging FROM ("your" branch)
-#   - event, reference / SHA for THAT EVENT ("main"+"your" branch)
-name: Code Coverage | Go
+#   - merge, reference / SHA for THAT EVENT ("main"+"your" branch)
+#   then compare it.
+name: Code Coverage | Go (Beta)
 
 on:
   pull_request:
     branches:
       - main
       - beta
-      - staging
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}-${{ github.actor }}
@@ -34,7 +34,7 @@ jobs:
       - name: Checkout base branch
         uses: actions/checkout@v3
         with:
-          ref: main
+          ref: ${{ github.base_ref }}
           token: ${{ secrets.BOT_PAT }}
 
       - name: Test code coverage
@@ -69,7 +69,7 @@ jobs:
       - name: Checkout head branch
         uses: actions/checkout@v3
         with:
-          ref: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
+          ref: ${{ github.head_ref }}
           token: ${{ secrets.BOT_PAT }}
 
       - name: Test code coverage
@@ -88,7 +88,7 @@ jobs:
           echo "percentage=$(cat code-coverage-go-percentage.out)" >> $GITHUB_OUTPUT
           echo "message=$covMsg" >> $GITHUB_OUTPUT
 
-  code-coverage-event:
+  code-coverage-merge:
     runs-on: ubuntu-latest
     if: github.actor != 'verlandz-bot'
     outputs:
@@ -101,7 +101,7 @@ jobs:
         with:
           go-version: 1.18.x
 
-      - name: Checkout event branch
+      - name: Checkout merge branch
         uses: actions/checkout@v3
         with:
           token: ${{ secrets.BOT_PAT }}
@@ -124,15 +124,15 @@ jobs:
 
   comparison:
     runs-on: ubuntu-latest
-    needs: [code-coverage-base, code-coverage-head, code-coverage-event]
+    needs: [code-coverage-base, code-coverage-head, code-coverage-merge]
     if: always() && github.actor != 'verlandz-bot'
     env:
       THRES_BASE_BRANCH: ${{ needs.code-coverage-base.outputs.threshold }}
       THRES_HEAD_BRANCH: ${{ needs.code-coverage-head.outputs.threshold }}
-      THRES_EVENT_BRANCH: ${{ needs.code-coverage-event.outputs.threshold }}
+      THRES_MERGE_BRANCH: ${{ needs.code-coverage-merge.outputs.threshold }}
       COV_BASE_BRANCH: ${{ needs.code-coverage-base.outputs.percentage }}
       COV_HEAD_BRANCH: ${{ needs.code-coverage-head.outputs.percentage }}
-      COV_EVENT_BRANCH: ${{ needs.code-coverage-event.outputs.percentage }}
+      COV_MERGE_BRANCH: ${{ needs.code-coverage-merge.outputs.percentage }}
     steps:
       - name: Comparison
         uses: actions/github-script@v6
@@ -142,16 +142,16 @@ jobs:
             // define
             let thresBaseBranch = parseFloat(${{ env.THRES_BASE_BRANCH }}); thresBaseBranch = thresBaseBranch ? thresBaseBranch : 0;
             let thresHeadBranch = parseFloat(${{ env.THRES_HEAD_BRANCH }}); thresHeadBranch = thresHeadBranch ? thresHeadBranch : 0;
-            let thresEventBranch = parseFloat(${{ env.THRES_EVENT_BRANCH }}); thresEventBranch = thresEventBranch ? thresEventBranch : 0;
+            let thresMergeBranch = parseFloat(${{ env.THRES_MERGE_BRANCH }}); thresMergeBranch = thresMergeBranch ? thresMergeBranch : 0;
             let covBaseBranch = parseFloat(${{ env.COV_BASE_BRANCH }}); covBaseBranch = covBaseBranch ? covBaseBranch : 0;
             let covHeadBranch = parseFloat(${{ env.COV_HEAD_BRANCH }}); covHeadBranch = covHeadBranch ? covHeadBranch : 0;
-            let covEventBranch = parseFloat(${{ env.COV_EVENT_BRANCH }}); covEventBranch = covEventBranch ? covEventBranch : 0;
+            let covMergeBranch = parseFloat(${{ env.COV_MERGE_BRANCH }}); covMergeBranch = covMergeBranch ? covMergeBranch : 0;
 
             // diff
             let fixedDigits = 2;
             let diffHeadToBase = (covHeadBranch - covBaseBranch).toFixed(fixedDigits);
-            let diffEventToBase = (covEventBranch - covBaseBranch).toFixed(fixedDigits);
-            let diffEventToThres = (covEventBranch - thresEventBranch).toFixed(fixedDigits);
+            let diffMergeToBase = (covMergeBranch - covBaseBranch).toFixed(fixedDigits);
+            let diffMergeToThres = (covMergeBranch - thresMergeBranch).toFixed(fixedDigits);
 
             // diff color
             let diffHeadToBaseColor; 
@@ -159,14 +159,14 @@ jobs:
             else if (diffHeadToBase < 0) diffHeadToBaseColor = "red";
             else diffHeadToBaseColor = "gray";
 
-            let diffEventToBaseColor;
-            if (diffEventToBase > 0) diffEventToBaseColor = "green";
-            else if (diffEventToBase < 0) diffEventToBaseColor = "red";
-            else diffEventToBaseColor = "gray";
+            let diffMergeToBaseColor;
+            if (diffMergeToBase > 0) diffMergeToBaseColor = "green";
+            else if (diffMergeToBase < 0) diffMergeToBaseColor = "red";
+            else diffMergeToBaseColor = "gray";
 
             // status
             let statusIcon;
-            if (diffEventToThres >= 0) statusIcon = ":white_check_mark:"
+            if (diffMergeToThres >= 0) statusIcon = ":white_check_mark:"
             else statusIcon = ":x:"
 
             // body
@@ -175,14 +175,14 @@ jobs:
 
               Branch | Threshold | Coverage | Diff to \`base\`
               --- | --- | --- | --- |
-              \`base:main\` | ${thresBaseBranch}% | ${covBaseBranch}% | - |
-              \`head:your\` | ${thresHeadBranch}% | ${covHeadBranch}% | $\\textcolor{ ${diffHeadToBaseColor} }{\\text{ ${diffHeadToBase}\\\\% }}$ |
-              \`event:merged\` | ${thresEventBranch}% | ${covEventBranch}% | $\\textcolor{ ${diffEventToBaseColor} }{\\text{ ${diffEventToBase}\\\\% }}$ |
+              \`base\` | ${thresBaseBranch}% | ${covBaseBranch}% | - |
+              \`head\` | ${thresHeadBranch}% | ${covHeadBranch}% | $\\textcolor{ ${diffHeadToBaseColor} }{\\text{ ${diffHeadToBase}\\\\% }}$ |
+              \`merge\` | ${thresMergeBranch}% | ${covMergeBranch}% | $\\textcolor{ ${diffMergeToBaseColor} }{\\text{ ${diffMergeToBase}\\\\% }}$ |
 
               <details>
               <summary>Note</summary>
 
-              - <b>PASS :white_check_mark: / NOT PASS :x:</b> depends on \`event\` to \`base\` coverage
+              - <b>PASS :white_check_mark: / NOT PASS :x:</b> depends on \`merge\` to \`base\` coverage
               - For detail logs please see directly in the **Actions**
 
               </details>

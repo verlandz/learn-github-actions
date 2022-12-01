@@ -1,15 +1,13 @@
 ---
 # [Autofix | Go Formatter]
-#   autofix your Go files using "go fmt"
-#   to your changes files.
-name: Autofix | Go Formatter
+#   autofix your Go file changes using "go fmt".
+name: Autofix | Go Formatter (Beta)
 
 on:
   pull_request:
     branches:
       - main
       - beta
-      - staging
     paths: '**.go'
 
 concurrency:
@@ -34,9 +32,9 @@ jobs:
       - name: Formatter
         id: formatter
         run: |
-          git fetch origin main
+          git fetch origin ${{ github.base_ref }}
 
-          files=$(git diff --name-status origin/main | grep '.go$' | awk '$1 != "D" {print $NF}')
+          files=$(git diff --name-status origin/${{ github.base_ref }} | grep '.go$' | awk '$1 != "D" {print $NF}')
           for file in $files
           do
             echo "Formatting $file"
@@ -71,7 +69,7 @@ jobs:
       - name: Commit and push
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
+          branch: ${{ github.head_ref }}
           commit_user_name: 'verlandz-bot'
           commit_user_email: 'verlandz-bot@users.noreply.github.com'
           commit_message: '[BOT] Autofix | Go Formatter'

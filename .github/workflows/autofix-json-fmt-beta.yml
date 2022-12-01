@@ -1,18 +1,14 @@
 ---
-# [Autofix | YAML/YML Formatter]
-#   autofix your YAML/YML files using "prettier"
-#   to your changes files.
-name: Autofix | YAML/YML Formatter
+# [Autofix | JSON Formatter]
+#   autofix your JSON file changes using "jq".
+name: Autofix | JSON Formatter (Beta)
 
 on:
   pull_request:
     branches:
       - main
       - beta
-      - staging
-    paths:
-      - '**.yaml'
-      - '**.yml'
+    paths: '**.json'
 
 concurrency:
   group: ${{ github.ref }}-${{ github.workflow }}-${{ github.actor }}
@@ -23,13 +19,8 @@ jobs:
     runs-on: ubuntu-latest
     if: github.actor != 'verlandz-bot'
     steps:
-      - name: Setup Node
-        uses: actions/setup-node@v3
-        with:
-          node-version: '18'
-
-      - name: Install prettier
-        run: npm install --save-dev --save-exact prettier
+      - name: Install jq
+        run: sudo apt-get install
 
       - name: Checkout branch
         uses: actions/checkout@v3
@@ -39,17 +30,16 @@ jobs:
       - name: Formatter
         id: formatter
         run: |
-          git fetch origin main
+          git fetch origin ${{ github.base_ref }}
 
-          prettier_path=.github/workflows/supports/.prettierrc
-          npx prettier --find-config-path $prettier_path
-
-          files=$(git diff --name-status origin/main | grep -E ".yaml$|.yml$" | awk '$1 != "D" {print $NF}')
+          files=$(git diff --name-status origin/${{ github.base_ref }} | grep ".json$" | awk '$1 != "D" {print $NF}')
           for file in $files
           do
             echo "Formatting $file"
-            if res=$(npx prettier --config $prettier_path --write $file 2>&1)
+            if res=$(jq -j . $file 2>&1)
             then
+              jq -j . $file > res.out
+              mv res.out $file
               echo "OK"
             else
               echo -n "::error:: $res"
@@ -70,7 +60,7 @@ jobs:
           token: ${{ secrets.BOT_PAT }}
           issue-number: ${{ github.event.pull_request.number }}
           body: |
-            ### YAML/YML Formatter :x:
+            ### JSON Formatter :x:
             <details>
               <summary>Details</summary>
               <pre>${{ steps.formatter.outputs.err_msg }}</pre>
@@ -79,7 +69,7 @@ jobs:
       - name: Commit and push
         uses: stefanzweifel/git-auto-commit-action@v4
         with:
-          branch: ${{ github.event.pull_request.head.ref || github.head_ref || github.ref }}
+          branch: ${{ github.head_ref }}
           commit_user_name: 'verlandz-bot'
           commit_user_email: 'verlandz-bot@users.noreply.github.com'
-          commit_message: '[BOT] Autofix | YAML/YML Formatter'
+          commit_message: '[BOT] Autofix | JSON Formatter'
