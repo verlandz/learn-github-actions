@@ -10,6 +10,13 @@ data_output=code-coverage-go-target-data.out
 result_output=code-coverage-go-target-result.out
 threshold_output=code-coverage-go-target-threshold.out
 
+# define base branch
+base_branch="main"
+if [ "$1" != "" ]
+then
+    base_branch=$1
+fi
+
 # clear the output
 cat /dev/null > ./$data_output
 cat /dev/null > ./$result_output
@@ -17,8 +24,8 @@ cat /dev/null > ./$result_output
 # print to threshold output file
 echo $threshold > ./$threshold_output
 
-git fetch origin main
-files=$(git diff --name-status origin/main | grep $target_path | awk '$1 != "D" {print $NF}')
+git fetch origin $base_branch
+files=$(git diff --name-status origin/$base_branch | grep $target_path | awk '$1 != "D" {print $NF}')
 for file in $files
 do
     # IFS (Input Field Separator)
@@ -72,6 +79,7 @@ echo
 echo "============================================="
 echo "          GO TEST COVERAGE REPORT            "
 echo "============================================="
+echo -e "Base Branch:\t$base_branch"
 echo -e "Start Date:\t$start_date"
 echo -e "End Date:\t$end_date"
 echo -e "Elapsed:\t$elapsed_seconds s"
