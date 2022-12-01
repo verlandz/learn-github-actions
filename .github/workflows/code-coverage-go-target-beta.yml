@@ -31,7 +31,7 @@ jobs:
 
       - name: Test code coverage
         id: test-code-coverage
-        run: make test-target
+        run: make test-target BASE_BRANCH=${{ github.base_ref }}
 
       - name: Create coverage output
         id: create-coverage-output
