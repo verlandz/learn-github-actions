@@ -1,7 +1,7 @@
 ---
 # [File Changes]
 #   get file changes between "base" and "head" branch
-name: File Changes (Beta)
+name: File Changes
 
 on:
   pull_request:
