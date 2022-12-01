@@ -20,6 +20,7 @@ fi
 # clear the output
 cat /dev/null > ./$data_output
 cat /dev/null > ./$result_output
+cat /dev/null > ./$threshold_output
 
 # print to threshold output file
 echo $threshold > ./$threshold_output
