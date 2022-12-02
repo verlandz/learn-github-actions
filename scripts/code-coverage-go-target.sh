@@ -3,7 +3,7 @@
 # var
 old_ifs=$IFS
 threshold=60.0
-start_date="$(date)"
+start_date=$(date)
 start_date_seconds="$(date +%s)"
 target_path="dummy-module/"
 data_output=code-coverage-go-target-data.out
@@ -77,7 +77,7 @@ do
     echo -e "$uniq_module\\t$coverage%\\t$res" >> ./$result_output
 done
 
-end_date="$(date)"
+end_date=$(date)
 end_date_seconds="$(date +%s)"
 elapsed_seconds="$(($end_date_seconds-$start_date_seconds))"
 

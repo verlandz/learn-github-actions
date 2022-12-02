@@ -2,7 +2,7 @@
 
 # var
 threshold=60.0
-start_date="asdfdsf"
+start_date=$(date)
 start_date_seconds="$(date +%s)"
 profile_output=code-coverage-go-profile.out
 data_output=code-coverage-go-data.out
@@ -41,7 +41,7 @@ printOutput () {
     echo "$1" > ./$percentage_output
     echo "$2" > ./$message_output
 
-    end_date="$(date -I seconds)"
+    end_date=$(date)
     end_date_seconds="$(date +%s)"
     elapsed_seconds="$(($end_date_seconds-$start_date_seconds))"
 
