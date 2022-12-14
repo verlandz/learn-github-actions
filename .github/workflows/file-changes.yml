@@ -29,14 +29,20 @@ jobs:
           # git fetch origin ${{ github.base_ref }}
           git branch
 
-          diffFiles=$(git diff --name-status origin/${{ github.base_ref }})
+          diffFiles=$(git diff --name-status ${{ github.base_ref }})
           diffFiles="${diffFiles//'%'/'<br>'}"
           diffFiles="${diffFiles//$'\n'/'<br>'}"
           diffFiles="${diffFiles//$'\r'/'<br>'}"
           echo "files=$diffFiles" >> $GITHUB_OUTPUT
 
+          echo "[a]"
+          echo $diffFiles
+
           diffStats=$(git diff --shortstat origin/${{ github.base_ref }})
           echo "stats=$diffStats" >> $GITHUB_OUTPUT
+
+          echo "[b]"
+          echo $diffStats
 
       - name: Report failure
         if: failure()
