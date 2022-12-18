@@ -2,7 +2,7 @@
 
 # var
 threshold=60.0
-start_date=$(date)
+start_date="$(date)"
 start_date_seconds="$(date +%s)"
 profile_output=code-coverage-go-profile.out
 data_output=code-coverage-go-data.out
@@ -149,7 +149,7 @@ echo "Average Coverage:  $percentage_avg%"
 echo "Threshold Coverage: $threshold%"
 echo
 
-if (( $(echo "$percentage_avg < $threshold" |bc -l) ));
+if (( $(echo "$percentage_avg < $threshold" | bc -l) ));
 then
     msg="
     !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!

@@ -3,7 +3,7 @@
 # var
 old_ifs=$IFS
 threshold=60.0
-start_date=$(date)
+start_date="$(date)"
 start_date_seconds="$(date +%s)"
 target_path="dummy-module/"
 data_output=code-coverage-go-target-data.out
@@ -25,12 +25,14 @@ cat /dev/null > ./$threshold_output
 # print to threshold output file
 echo $threshold > ./$threshold_output
 
+# fetch $base_branch
 if !(res=$(git fetch origin $base_branch 2>&1))
 then
     echo "Unknown base_branch: $base_branch !"
     exit 1
 fi
 
+# get diff between $base_branch and $head_branch
 files=$(git diff --name-status origin/$base_branch | grep $target_path | awk '$1 != "D" {print $NF}')
 for file in $files
 do
@@ -48,6 +50,7 @@ done
 IFS=$old_ifs # revert IFS
 is_pass=true
 
+# get diff between $base_branch and $head_branch
 uniq_modules=$(cat $data_output | sort | uniq)
 for uniq_module in $uniq_modules
 do
@@ -61,10 +64,12 @@ do
         rm files.tmp
 
         # check if coverage is below 0 or not valid value
-        if [[ $(echo "$coverage > 0" | bc) != 1 ]]
+        if [[ $(echo "$coverage > 0.00" | bc) != 1 ]]
         then
             coverage=0.00
         fi
+    else
+        echo -n "::error:: $files"
     fi
 
     # check pass/not pass
@@ -77,7 +82,7 @@ do
     echo -e "$uniq_module\\t$coverage%\\t$res" >> ./$result_output
 done
 
-end_date=$(date)
+end_date="$(date)"
 end_date_seconds="$(date +%s)"
 elapsed_seconds="$(($end_date_seconds-$start_date_seconds))"
 
